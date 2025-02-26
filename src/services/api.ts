@@ -2,7 +2,7 @@
 // import { Employee, CreateEmployeeDTO } from '../types/api.types';
 
 // const api = axios.create({
-//   baseURL: process.env.REACT_APP_API_URL,
+//   baseURL: process.env.BASE_URL,
 // });
 
 // export const employeeApi = {

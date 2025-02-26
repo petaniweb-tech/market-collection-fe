@@ -11,10 +11,17 @@
 // Import Routes
 
 import { Route as rootRoute } from './routes/__root'
+import { Route as ProtectedRouteImport } from './routes/protected-route'
 import { Route as ProtectedImport } from './routes/protected'
 import { Route as IndexImport } from './routes/index'
 
 // Create/Update Routes
+
+const ProtectedRouteRoute = ProtectedRouteImport.update({
+  id: '/protected-route',
+  path: '/protected-route',
+  getParentRoute: () => rootRoute,
+} as any)
 
 const ProtectedRoute = ProtectedImport.update({
   id: '/protected',
@@ -46,6 +53,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProtectedImport
       parentRoute: typeof rootRoute
     }
+    '/protected-route': {
+      id: '/protected-route'
+      path: '/protected-route'
+      fullPath: '/protected-route'
+      preLoaderRoute: typeof ProtectedRouteImport
+      parentRoute: typeof rootRoute
+    }
   }
 }
 
@@ -54,36 +68,41 @@ declare module '@tanstack/react-router' {
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/protected': typeof ProtectedRoute
+  '/protected-route': typeof ProtectedRouteRoute
 }
 
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/protected': typeof ProtectedRoute
+  '/protected-route': typeof ProtectedRouteRoute
 }
 
 export interface FileRoutesById {
   __root__: typeof rootRoute
   '/': typeof IndexRoute
   '/protected': typeof ProtectedRoute
+  '/protected-route': typeof ProtectedRouteRoute
 }
 
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/protected'
+  fullPaths: '/' | '/protected' | '/protected-route'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/protected'
-  id: '__root__' | '/' | '/protected'
+  to: '/' | '/protected' | '/protected-route'
+  id: '__root__' | '/' | '/protected' | '/protected-route'
   fileRoutesById: FileRoutesById
 }
 
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   ProtectedRoute: typeof ProtectedRoute
+  ProtectedRouteRoute: typeof ProtectedRouteRoute
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   ProtectedRoute: ProtectedRoute,
+  ProtectedRouteRoute: ProtectedRouteRoute,
 }
 
 export const routeTree = rootRoute
@@ -97,7 +116,8 @@ export const routeTree = rootRoute
       "filePath": "__root.tsx",
       "children": [
         "/",
-        "/protected"
+        "/protected",
+        "/protected-route"
       ]
     },
     "/": {
@@ -105,6 +125,9 @@ export const routeTree = rootRoute
     },
     "/protected": {
       "filePath": "protected.ts"
+    },
+    "/protected-route": {
+      "filePath": "protected-route.tsx"
     }
   }
 }

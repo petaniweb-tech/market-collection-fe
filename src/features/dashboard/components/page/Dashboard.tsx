@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
@@ -7,14 +8,109 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { ArrowRight, BarChart3, ArrowLeft } from "lucide-react";
+import { ArrowRight, BarChart3, ArrowLeft, RotateCcw } from "lucide-react";
 import { ProgressBar } from "@tremor/react";
+import { useEffect, useState } from "react";
+import SegmentedProgress from "../progress/SegmentedProgress";
+import IncomeAreaChart from "../card/IncomeAreaChart";
+import { useAuth } from "@/features/auth/hooks/useAuth";
+import { usePermissions } from "@/hooks/usePermission";
+import { Navigate } from "@tanstack/react-router";
+import Unauthorized from "@/components/common/unauthorize/Unauthorize";
+
+// Function to detect if the device is mobile or tablet
+// const isMobileDevice = () => {
+//   return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+//     navigator.userAgent
+//   );
+// };
+
+// Detect current orientation
+// const isLandscape = () => {
+//   // For mobile/tablet devices
+//   if (window.orientation !== undefined) {
+//     return window.orientation === 90 || window.orientation === -90;
+//   }
+
+//   // For desktop and browsers
+//   return window.innerWidth > window.innerHeight;
+// };
 
 const Dashboard = () => {
+  const [shouldRotate, setShouldRotate] = useState(false);
+  const { isAuthenticated } = useAuth();
+  const { isAdmin } = usePermissions();
+  // const { isAuthenticated, user } = useAuth();
+  // if (!isAuthenticated) {
+  //   return <Navigate to="/login" />;
+  // }
+
+  // if (user?.role !== 'admin') {
+  //   return <Navigate to="/login" />;
+  // }
+
+  // useEffect(() => {
+  //   // Check if it's a mobile/tablet device and initial orientation is portrait
+  //   const checkOrientation = () => {
+  //     if (isMobileDevice() && !isLandscape()) {
+  //       setShouldRotate(true);
+  //     } else {
+  //       setShouldRotate(false);
+  //     }
+  //   };
+
+  //   // Initial check
+  //   checkOrientation();
+
+  //   // Listen for orientation and resize changes
+  //   window.addEventListener("orientationchange", checkOrientation);
+  //   window.addEventListener("resize", checkOrientation);
+
+  //   // Cleanup listeners
+  //   return () => {
+  //     window.removeEventListener("orientationchange", checkOrientation);
+  //     window.removeEventListener("resize", checkOrientation);
+  //   };
+  // }, []);
+
+  // // If not in landscape mode on mobile/tablet, show rotation prompt
+  // if (shouldRotate) {
+  //   return (
+  //     <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black bg-opacity-90">
+  //       <div className="p-8 text-center text-white">
+  //         <RotateCcw
+  //           className="w-24 h-24 mx-auto mb-6 text-white animate-spin-slow"
+  //           strokeWidth={1.5}
+  //         />
+  //         <h2 className="mb-4 text-2xl font-bold">Rotate Your Device</h2>
+  //         <p className="text-lg">
+  //           Please rotate your device to landscape mode for the best experience.
+  //         </p>
+  //       </div>
+  //     </div>
+  //   );
+  // }
+
   const locations = ["Klojen", "Dinoyo", "Lowokwaru", "Sukun", "Gadang"];
+
+  // Redirect to login if not authenticated
+  if (!isAuthenticated) {
+    return <Navigate to="/login" />;
+  }
+
+  // Show unauthorized page if user is not an admin
+  if (!isAdmin()) {
+    return <Unauthorized />;
+  }
 
   return (
     <div className="px-16 py-9 bg-gradient-to-b from-gradients-background-from to-gradients-background-to">
+      <div className="mb-10">
+        <h1 className="text-2xl font-semibold">Dashboard</h1>
+        <p className="text-gray-500">
+          Informasi Ringkas tentang pencapaian target harian
+        </p>
+      </div>
       <div className="flex justify-between h-14">
         <div className="relative w-full pt-3 pl-4 text-xl font-semibold bg-white bg-opacity-35 h-14 rounded-t-2xl rounded-out-br-2xl ">
           Target Harian
@@ -82,7 +178,7 @@ const Dashboard = () => {
               </Button>
             </div>
 
-            <h3 className="mb-4 text-5xl font-bold">Rp. 120.000.000</h3>
+            {/* <h3 className="mb-4 text-5xl font-bold">Rp. 120.000.000</h3> */}
             {/* <div className="w-full h-2 bg-gray-100 rounded-full">
               <div className="w-[50%] h-full bg-gradient-to-r from-orange-500 to-orange-200 rounded-full" />
             </div>
@@ -93,19 +189,23 @@ const Dashboard = () => {
             </div> */}
 
             <div className="space-y-2">
-              <ProgressBar
+              {/* <ProgressBar
                 value={50}
                 color="orange"
                 className="h-10"
-
                 showAnimation={true}
                 // segments={35}
+              /> */}
+              <SegmentedProgress
+                total={120000000}
+                current={80000000}
+                segments={36} // Optional, defaults to 36 segments
               />
-              <div className="flex justify-between text-sm">
+              {/* <div className="flex justify-between text-sm">
                 <span className="text-gray-500">10%</span>
                 <span className="text-orange-500">50%</span>
                 <span className="text-gray-500">100%</span>
-              </div>
+              </div> */}
             </div>
           </div>
         </div>
@@ -175,7 +275,7 @@ const Dashboard = () => {
         <div className="">
           {/* Header */}
           <div className="flex items-center">
-            <div className="relative flex items-center justify-between w-full h-16 pt-3 pl-8 text-xl font-semibold bg-white bg-opacity-35 rounded-t-2xl rounded-out-br-2xl">
+            <div className="relative flex items-center justify-between w-full h-16 pt-3 pl-8 text-xl font-semibold bg-white bg-opacity-35 rounded-t-2xl">
               Top Earners
               <span>
                 <div className="mr-8">
@@ -198,17 +298,10 @@ const Dashboard = () => {
                 </div>
               </span>
             </div>
-            <Button
-              variant="default"
-              size="icon"
-              className="w-12 h-12 mb-2 ml-4 bg-white rounded-full"
-            >
-              <ArrowRight className="w-10 h-10 text-black" />
-            </Button>
           </div>
 
           {/* Content */}
-          <div className="px-8 py-8 bg-white rounded-tr-2xl rounded-br-2xl rounded-bl-2xl bg-opacity-35">
+          <div className="px-8 py-8 bg-white rounded-br-2xl rounded-bl-2xl bg-opacity-35">
             <div className="overflow-hidden rounded-2xl ">
               {/* Header Row */}
               <div className="grid grid-cols-10 gap-4 p-4 mb-3 bg-white rounded-2xl">
@@ -285,19 +378,7 @@ const Dashboard = () => {
             </div>
           </CardHeader>
           <CardContent>
-            <div className="flex justify-between mb-4">
-              {["Mon", "Tues", "Weds", "Thurs", "Fri", "Sat"].map((day, i) => (
-                <div key={day} className="text-center">
-                  <div className="text-sm text-gray-500">{day}</div>
-                  <div className="text-sm font-medium">{10 + i}</div>
-                </div>
-              ))}
-            </div>
-            <div className="relative h-48 bg-gradient-to-b from-orange-100">
-              <div className="absolute p-2 bg-white rounded-lg shadow-lg top-1/2 right-1/4">
-                <p className="text-sm">Pendapatan menurun di Juni</p>
-              </div>
-            </div>
+            <IncomeAreaChart />
           </CardContent>
         </Card>
       </div>

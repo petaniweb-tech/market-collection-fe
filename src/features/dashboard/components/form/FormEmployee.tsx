@@ -1,4 +1,7 @@
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
 import { Button } from "@/components/ui/button";
+
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -7,11 +10,45 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
-import { User } from "lucide-react";
-import { useCreateEmployee, useEmployees } from "../../hooks/useEmployee";
+import { SheetContent } from "@/components/ui/sheet";
+import { UserRound } from "lucide-react";
+import { useCreateEmployee } from "../../hooks/useEmployee";
+
 import type { CreateEmployeeDTO } from "../../types";
-// import { useOnlineStatus } from '@/hooks/useOnlineStatus';
+import { useToast } from "@/hooks/use-toast";
+import { useForm } from "react-hook-form";
+import {
+  Form,
+  FormControl,
+  // FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import PersonSquare from "@/assets/icon/ic_person_square.svg";
+import LocationComboBox from "../combobox/LocationComboBox";
+
+// Form validation schema
+const formSchema = z.object({
+  name: z.string().min(2, { message: "Nama harus diisi" }),
+  role: z.enum(["collector", "manager", "supervisor", "admin"], {
+    required_error: "Pilih role pegawai",
+  }),
+  phone: z
+    .string()
+    .min(1, { message: "Nomor HP harus diisi" })
+    .regex(/^\+62[1-9][0-9]{8,11}$/, {
+      message: "Nomor HP harus diawali +62 dan maksimal 14 karakter",
+    })
+    .refine((val) => val.length <= 14, {
+      message: "Nomor HP tidak boleh lebih dari 14 karakter",
+    }),
+  email: z.string().email({ message: "Email tidak valid" }),
+  location: z.string().min(1, { message: "Lokasi harus dipilih" }),
+});
+
+type FormValues = z.infer<typeof formSchema>;
 
 interface FormEmployeeProps {
   isOpen: boolean;
@@ -21,186 +58,208 @@ interface FormEmployeeProps {
 
 const FormEmployee = ({ onOpenChange, setSubmitting }: FormEmployeeProps) => {
   const createEmployee = useCreateEmployee();
-  const { refetch } = useEmployees();
+  const { toast } = useToast();
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    const form = e.currentTarget;
-    const formData = new FormData(form);
+  const form = useForm<FormValues>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      name: "",
+      role: undefined,
+      phone: "",
+      email: "",
+      location: "",
+    },
+  });
 
-    const employeeData: CreateEmployeeDTO = {
-      name: formData.get("name") as string,
-      nip: formData.get("nip") as string,
-      phone: formData.get("phone") as string,
-      email: formData.get("email") as string,
-      location: formData.get("location") as string,
-      role: formData.get("role") as string,
-      password: "defaultPassword", // Add appropriate logic to handle password
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
-    };
-
+  const onSubmit = async (values: FormValues) => {
     try {
       setSubmitting(true);
-      onOpenChange(false);
+
+      // Transform form values to match API expectations
+      const employeeData: CreateEmployeeDTO = {
+        name: values.name,
+        role: values.role,
+        phone_number: values.phone,
+        email: values.email,
+        location_id: values.location,
+      };
+
       await createEmployee.mutateAsync(employeeData);
-      await refetch(); // Refetch the data after successful creation
+
+      toast({
+        title: "Berhasil menambahkan pegawai",
+        description: "Undangan telah dikirim ke email pegawai",
+        // variant: "success",
+      });
+
       form.reset();
+      onOpenChange(false);
     } catch (error) {
       console.error("Failed to create employee:", error);
+      toast({
+        title: "Gagal menambahkan pegawai",
+        description: "Terjadi kesalahan saat menambahkan pegawai baru",
+        variant: "destructive",
+      });
     } finally {
       setSubmitting(false);
     }
   };
 
-  //TODO: OFFLINE FIRST NEED TO RESEARCH MORE
-  // const createEmployee = useCreateEmployee();
-  // const isOnline = useOnlineStatus();
-  // const [isSubmitting, setIsSubmitting] = React.useState(false);
-
-  // const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-  //   e.preventDefault();
-
-  //   try {
-  //     setIsSubmitting(true);
-  //     const form = e.currentTarget;
-  //     const formData = new FormData(form);
-
-  //     const employeeData: CreateEmployeeDTO = {
-  //       name: formData.get('name') as string,
-  //       nip: formData.get('nip') as string,
-  //       phone: formData.get('phone') as string,
-  //       email: formData.get('email') as string,
-  //       location: formData.get('location') as string,
-  //       role: formData.get('role') as string,
-  //       password: 'defaultPassword', // Add appropriate logic to handle password
-  //       created_at: new Date().toISOString(),
-  //       updated_at: new Date().toISOString(),
-  //     };
-
-  //     // Use mutateAsync if online, mutate if offline
-  //     if (isOnline) {
-  //       await createEmployee.mutateAsync(employeeData);
-  //     } else {
-  //       createEmployee.mutate(employeeData);
-  //     }
-
-  //     form.reset();
-  //     onOpenChange(false);
-  //   } catch (error) {
-  //     console.error('Failed to create employee:', error);
-  //   } finally {
-  //     setIsSubmitting(false);
-  //   }
-  // };
-
   return (
-    <SheetContent className="w-full max-w-md sm:max-w-lg">
-      <SheetHeader>
-        <div className="flex items-center gap-4 mb-6">
-          <div className="p-2 bg-orange-100 rounded-lg">
-            <User className="w-6 h-6 text-orange-500" />
-          </div>
-          <div>
-            <SheetTitle className="text-xl font-semibold">
-              Tambah pegawai baru
-            </SheetTitle>
-            <p className="text-sm text-gray-500">
-              Cupcake ipsum dolor sit amet jellybeans
-            </p>
+    <SheetContent className="w-full max-w-md rounded-lg sm:max-w-lg">
+      <div className="pt-6">
+        <div className="">
+          {/* <User className="w-6 h-6 text-orange-500" /> */}
+          <img src={PersonSquare} alt="Profile" className="mb-6" />
+
+          <div className="mb-7">
+            <h2 className="text-xl font-semibold">Tambah pegawai baru</h2>
+            <div className="font-normal text-[#909090]">Isi data pegawai baru untuk ditambahkan ke sistem</div>
+            <div className="h-px mt-4 bg-gray-200"></div>
           </div>
         </div>
-      </SheetHeader>
 
-      <form className="space-y-6" onSubmit={handleSubmit}>
-        <div className="space-y-2">
-          <label className="text-sm font-medium">Nama Pegawai</label>
-          <Input
-            name="name"
-            placeholder="Masukkan Nama Pegawai"
-            className="w-full"
-            required
-          />
-        </div>
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
+            <FormField
+              control={form.control}
+              name="role"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Role / Level</FormLabel>
+                  <Select
+                    onValueChange={field.onChange}
+                    defaultValue={field.value}
+                  >
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Pilih Role / Level" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem
+                        value="collector"
+                        className="flex items-center"
+                      >
+                        <div className="flex items-center">
+                          <UserRound className="w-4 h-4 mr-2 text-blue-500" />
+                          <span>Collector Lapak</span>
+                        </div>
+                      </SelectItem>
+                      <SelectItem value="manager" className="flex items-center">
+                        <div className="flex items-center">
+                          <UserRound className="w-4 h-4 mr-2 text-green-500" />
+                          <span>Kepala Lokasi</span>
+                        </div>
+                      </SelectItem>
+                      <SelectItem
+                        value="supervisor"
+                        className="flex items-center"
+                      >
+                        <div className="flex items-center">
+                          <UserRound className="w-4 h-4 mr-2 text-purple-500" />
+                          <span>Dinas Perdagangan Kota</span>
+                        </div>
+                      </SelectItem>
+                      <SelectItem value="admin" className="flex items-center">
+                        <div className="flex items-center">
+                          <UserRound className="w-4 h-4 mr-2 text-orange-500" />
+                          <span>Admin</span>
+                        </div>
+                      </SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-        <div className="space-y-2">
-          <label className="text-sm font-medium">NIP</label>
-          <Input
-            name="nip"
-            placeholder="Masukkan NIP"
-            className="w-full"
-            required
-          />
-        </div>
+            <FormField
+              control={form.control}
+              name="name"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Nama Pegawai</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Masukkan Nama Pegawai" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-        <div className="space-y-2">
-          <label className="text-sm font-medium">Nomor HP</label>
-          <Input
-            name="phone"
-            placeholder="Masukkan Nomor HP"
-            className="w-full"
-            required
-          />
-        </div>
+            <FormField
+              control={form.control}
+              name="phone"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Nomor HP</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Masukkan Nomor HP" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-        <div className="space-y-2">
-          <label className="text-sm font-medium">Email</label>
-          <Input
-            name="email"
-            type="email"
-            placeholder="Masukkan Email"
-            className="w-full"
-            required
-          />
-        </div>
+            <FormField
+              control={form.control}
+              name="email"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Email</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="email"
+                      placeholder="Masukkan Email"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-        <div className="space-y-2">
-          <label className="text-sm font-medium">Lokasi</label>
-          <Select name="location" required>
-            <SelectTrigger className="w-full">
-              <SelectValue placeholder="Pilih Lokasi" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="lowokwaru">Lowokwaru</SelectItem>
-              <SelectItem value="klojen">Klojen</SelectItem>
-              <SelectItem value="blimbing">Blimbing</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
+            <FormField
+              control={form.control}
+              name="location"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Lokasi Kerja</FormLabel>
+                  <FormControl>
+                    <LocationComboBox
+                      value={field.value}
+                      onChange={field.onChange}
+                      placeholder="Pilih Lokasi Kerja"
+                      isInsideSheet={true}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-        <div className="space-y-2">
-          <label className="text-sm font-medium">Role / Level</label>
-          <Select name="role" required>
-            <SelectTrigger className="w-full">
-              <SelectValue placeholder="Pilih Role / Level" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="Collector Lapak">Collector Lapak</SelectItem>
-              <SelectItem value="Kepala Lokasi">Kepala Lokasi</SelectItem>
-              <SelectItem value="Dinas Perdagangan Kota">
-                Dinas Perdagangan Kota
-              </SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-
-        <div className="flex justify-end gap-3 pt-6">
-          <Button
-            type="button"
-            variant="outline"
-            onClick={() => onOpenChange(false)}
-          >
-            Batal
-          </Button>
-          <Button
-            type="submit"
-            className="bg-orange-500 hover:bg-orange-600"
-            disabled={createEmployee.isPending}
-          >
-            {createEmployee.isPending ? "Menyimpan..." : "Simpan"}
-          </Button>
-        </div>
-      </form>
+            <div className="flex justify-end gap-3 pt-3">
+              <Button
+                className="rounded-full"
+                type="button"
+                variant="outline"
+                onClick={() => onOpenChange(false)}
+              >
+                Batal
+              </Button>
+              <Button
+                type="submit"
+                className="bg-orange-500 rounded-full hover:bg-orange-600"
+                disabled={createEmployee.isPending}
+              >
+                {createEmployee.isPending ? "Menyimpan..." : "Simpan"}
+              </Button>
+            </div>
+          </form>
+        </Form>
+      </div>
     </SheetContent>
   );
 };

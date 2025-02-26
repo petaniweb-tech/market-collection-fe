@@ -1,10 +1,48 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
-import { User } from "lucide-react";
+import { SheetContent } from "@/components/ui/sheet";
+import { Store } from "lucide-react";
 import { useCreateStore, useStores } from "../../hooks/useStore";
-import { CreateStoreDTO } from "../../types";
-// import { useOnlineStatus } from '@/hooks/useOnlineStatus';
+import type { CreateStoreDTO } from "../../types";
+import { useToast } from "@/hooks/use-toast";
+import { useForm } from "react-hook-form";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { Textarea } from "@/components/ui/textarea";
+import LocationComboBox from "../combobox/LocationComboBox";
+import StoreSquare from "@/assets/icon/ic_store_square.svg";
+
+const formatToRupiah = (value: string | number) => {
+  const numberValue =
+    typeof value === "string" ? parseInt(value.replace(/[^\d]/g, "")) : value;
+  return new Intl.NumberFormat("id-ID").format(numberValue || 0);
+};
+
+const stripNonDigits = (value: string) => value.replace(/[^\d]/g, "");
+
+// Form validation schema
+const formSchema = z.object({
+  store_name: z.string().min(2, { message: "Nama lapak harus diisi" }),
+  location: z.string().min(2, { message: "Lokasi harus diisi" }),
+  retribution: z
+    .string()
+    .min(1, { message: "Nominal retribusi harus diisi" })
+    .regex(/^\d+$/, { message: "Nominal retribusi harus berupa angka" })
+    .transform((val) => parseInt(stripNonDigits(val) || "0", 10)), // Convert to number here
+  desc: z.string().optional(),
+});
+
+type FormValues = z.infer<typeof formSchema>;
 
 interface FormStoreProps {
   isOpen: boolean;
@@ -12,117 +50,179 @@ interface FormStoreProps {
   setSubmitting: (loading: boolean) => void;
 }
 
-const FormLocation = ({ onOpenChange, setSubmitting }: FormStoreProps) => {
+const FormStore = ({ onOpenChange, setSubmitting }: FormStoreProps) => {
   const createStore = useCreateStore();
   const { refetch } = useStores();
+  const { toast } = useToast();
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    const form = e.currentTarget;
-    const formData = new FormData(form);
+  const form = useForm<FormValues>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      store_name: "",
+      location: "",
+      retribution: 0,
+      desc: "",
+    },
+  });
 
-    const storeData: CreateStoreDTO = {
-      store_name: formData.get("store_name") as string,
-      desc: formData.get("desc") as string,
-      location: formData.get("location") as string,
-      retribution: formData.get("retribution") as string,
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
-    };
+  // Track the display value for the retribution field
+  const [retributionDisplay, setRetributionDisplay] = useState("");
 
+  const onSubmit = async (values: FormValues) => {
     try {
       setSubmitting(true);
-      onOpenChange(false); // Close the sheet
+
+      const storeData: CreateStoreDTO = {
+        name: values.store_name,
+        location_id: values.location,
+        expected_deposit_amount: values.retribution, // Will be a number after transform
+        status: "active",
+        // desc: values.desc || "",
+        // created_at: new Date().toISOString(),
+        // updated_at: new Date().toISOString(),
+      };
+
       await createStore.mutateAsync(storeData);
       await refetch();
-      form.reset(); // Reset the form
+
+      toast({
+        title: "Berhasil menambahkan lapak",
+        description: "Data lapak baru telah tersimpan",
+      });
+
+      form.reset();
+      setRetributionDisplay("");
+      onOpenChange(false);
     } catch (error) {
-      console.error("Failed to create employee:", error);
+      console.error("Failed to create store:", error);
+      toast({
+        title: "Gagal menambahkan lapak",
+        description: "Terjadi kesalahan saat menambahkan lapak baru",
+        variant: "destructive",
+      });
     } finally {
       setSubmitting(false);
     }
   };
 
   return (
-    <SheetContent className="w-full max-w-md sm:max-w-lg">
-      <SheetHeader>
-        <div className="flex items-center gap-4 mb-6">
-          <div className="p-2 bg-orange-100 rounded-lg">
-            <User className="w-6 h-6 text-orange-500" />
-          </div>
-          <div>
-            <SheetTitle className="text-xl font-semibold">
-              Tambah Lapak baru
-            </SheetTitle>
-            <p className="text-sm text-gray-500">
-              Cupcake ipsum dolor sit amet jellybeans
-            </p>
+    <SheetContent className="w-full max-w-md rounded-lg sm:max-w-lg">
+      <div className="pt-6">
+        <div className="">
+          <img src={StoreSquare} alt="Profile" className="mb-6" />
+
+          <div className="mb-7">
+            <h2 className="text-xl font-semibold">Tambah lapak baru</h2>
+            <div className="font-normal text-[#909090]">
+              Isi data lapak baru untuk ditambahkan ke sistem
+            </div>
+            <div className="h-px mt-4 bg-gray-200"></div>
           </div>
         </div>
-      </SheetHeader>
 
-      <form className="space-y-6" onSubmit={handleSubmit}>
-        <div className="space-y-2">
-          <label className="text-sm font-medium">Nama Lapak</label>
-          <Input
-            name="store_name"
-            placeholder="Masukkan Nama Lapak"
-            className="w-full"
-            required
-          />
-        </div>
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
+            <FormField
+              control={form.control}
+              name="store_name"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Nama Lapak</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Masukkan Nama Lapak" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-        <div className="space-y-2">
-          <label className="text-sm font-medium">Lokasi</label>
-          <Input
-            name="location"
-            placeholder="Masukkan Lokasi"
-            className="w-full"
-            required
-          />
-        </div>
+            <FormField
+              control={form.control}
+              name="location"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Lokasi</FormLabel>
+                  <FormControl>
+                    <LocationComboBox
+                      value={field.value}
+                      onChange={field.onChange}
+                      placeholder="Pilih Lokasi"
+                      isInsideSheet={true}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-        <div className="space-y-2">
-          <label className="text-sm font-medium">
-            Nominal Retribusi Harian
-          </label>
-          <Input
-            name="retribution"
-            placeholder="Masukkan Nominal Retribusi Harian"
-            className="w-full"
-            required
-          />
-        </div>
+            <FormField
+              control={form.control}
+              name="retribution"
+              render={({ field: { onChange, value, ...fieldProps } }) => (
+                <FormItem>
+                  <FormLabel>Target Retribusi Harian</FormLabel>
+                  <FormControl>
+                    <div className="relative">
+                      <div className="absolute text-gray-500 -translate-y-1/2 left-3 top-1/2">
+                        Rp
+                      </div>
+                      <Input
+                        className="pl-8"
+                        placeholder="0"
+                        value={retributionDisplay}
+                        onChange={(e) => {
+                          const rawValue = stripNonDigits(e.target.value);
+                          setRetributionDisplay(formatToRupiah(rawValue));
+                          onChange(rawValue); // Pass the raw string to be transformed by Zod
+                        }}
+                        {...fieldProps}
+                      />
+                    </div>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-        <div className="space-y-2">
-          <label className="text-sm font-medium">Keterangan</label>
-          <Input
-            name="desc"
-            placeholder="Masukkan Keterangan"
-            className="w-full"
-            required
-          />
-        </div>
+            {/* <FormField
+              control={form.control}
+              name="desc"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Keterangan</FormLabel>
+                  <FormControl>
+                    <Textarea
+                      placeholder="Masukkan Keterangan Lapak"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            /> */}
 
-        <div className="flex justify-end gap-3 pt-6">
-          <Button
-            type="button"
-            variant="outline"
-            onClick={() => onOpenChange(false)}
-          >
-            Batal
-          </Button>
-          <Button
-            type="submit"
-            className="bg-orange-500 hover:bg-orange-600"
-            disabled={createStore.isPending}
-          >
-            {createStore.isPending ? "Menyimpan..." : "Simpan"}
-          </Button>
-        </div>
-      </form>
+            <div className="flex justify-end gap-3 pt-3">
+              <Button
+                className="rounded-full"
+                type="button"
+                variant="outline"
+                onClick={() => onOpenChange(false)}
+              >
+                Batal
+              </Button>
+              <Button
+                type="submit"
+                className="bg-orange-500 rounded-full hover:bg-orange-600"
+                disabled={createStore.isPending}
+              >
+                {createStore.isPending ? "Menyimpan..." : "Simpan"}
+              </Button>
+            </div>
+          </form>
+        </Form>
+      </div>
     </SheetContent>
   );
 };
 
-export default FormLocation;
+export default FormStore;

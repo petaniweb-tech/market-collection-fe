@@ -1,16 +1,43 @@
-// import { useNavigate } from '@tanstack/react-router';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import CollectorForm from "./CollectorForm";
 import { useState } from "react";
 import SuccessModal from "./SuccessModal";
-import { useNavigate } from "@tanstack/react-router";
+import { Navigate, useNavigate } from "@tanstack/react-router";
 import { ArrowRight, Grid2X2, Store } from "lucide-react";
 import ProfileIcon from "@/assets/icon/ic_profile_user.svg";
+import { useAuth } from "@/features/auth/hooks/useAuth";
+import {
+  useCollectorDeposits,
+  useCreateCollectorDeposit,
+} from "../hooks/useCollector";
+import { format } from "date-fns";
+import DepositCard from "./card/DepositCard";
+import { usePermissions } from "@/hooks/usePermission";
+import Unauthorized from "@/components/common/unauthorize/Unauthorize";
 
 export default function Collector() {
   const navigate = useNavigate();
+  const { user, isAuthenticated } = useAuth();
+  const { isCollector } = usePermissions();
+  const today = new Date();
+  const formattedDate = format(today, "dd MMM yyyy");
+
+  // State for modals
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isModalSuccessOpen, setIsShowModalSuccess] = useState(false);
+
+  // Fetch collector deposits for today
+  const { data: collectorDepositsData, isLoading } = useCollectorDeposits({
+    page: 1,
+    limit: 5,
+    // You can add additional filters here, like a date filter for today's deposits
+  });
+
+  // Create collector deposit mutation
+  const { mutate: createDeposit, isPending: isCreating } =
+    useCreateCollectorDeposit();
 
   const getInitials = (name: string) => {
     return name
@@ -20,25 +47,18 @@ export default function Collector() {
       .toUpperCase();
   };
 
-  //   const handleLogout = () => {
-  //     // Clear authentication state (e.g., remove token from storage)
-  //     // setIsLoggedIn(false); // Update your isLoggedIn state
-
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isModalSuccesOpen, setIsShowModalSuccess] = useState(false);
-
-  //   const [selectedItem, setSelectedItem] = useState(null);
-
-  //   const handleItemClick = (item) => {
-  //     setSelectedItem(item);
-  //     setIsModalOpen(true);
-  //   };
-
   const handleSubmit = (formData) => {
-    console.log("Form submitted:", formData);
-    setIsModalOpen(false);
-    setIsShowModalSuccess(true);
-    // Handle the form submission here
+    // Use the mutation to create a new deposit
+    createDeposit(formData, {
+      onSuccess: () => {
+        setIsModalOpen(false);
+        setIsShowModalSuccess(true);
+      },
+      onError: (error) => {
+        console.error("Failed to create deposit:", error);
+        // Handle error state
+      },
+    });
   };
 
   const handleClose = () => {
@@ -46,19 +66,22 @@ export default function Collector() {
     navigate({ to: "/deposit-confirmation" });
   };
 
-  const setoran = [
-    { title: "Lapak Blok A1", nominal: "Rp. 10.000" },
-    { title: "Lapak Blok A1", nominal: "Rp. 10.000" },
-    { title: "Lapak Blok A1", nominal: "Rp. 10.000" },
-    { title: "Lapak Blok A1", nominal: "Rp. 10.000" },
-    { title: "Lapak Blok A1", nominal: "Rp. 10.000" },
-    { title: "Lapak Blok A1", nominal: "Rp. 10.000" },
-    // { title: "Lapak Blok A1", nominal: "Rp. 10.000" },
-    // { title: "Lapak Blok A1", nominal: "Rp. 10.000" },
-    // { title: "Lapak Blok A1", nominal: "Rp. 10.000" },
-    // { title: "Lapak Blok A1", nominal: "Rp. 10.000" },
-    // { title: "Lapak Blok A1", nominal: "Rp. 10.000" },
-  ];
+  // Get deposits from API data or use fallback
+  const deposits = collectorDepositsData?.records || [];
+
+  // Calculate progress
+  const collectedCount = deposits.length;
+  const totalTarget = 56; // This should come from your API if possible
+
+  // Redirect to login if not authenticated
+  if (!isAuthenticated) {
+    return <Navigate to="/collector/login" />;
+  }
+
+  // Show unauthorized page if user is not an admin
+  if (!isCollector()) {
+    return <Unauthorized />;
+  }
 
   return (
     <div className="flex flex-col h-full min-h-screen bg-gradient-to-b from-gradients-background-from to-gradients-background-to">
@@ -68,12 +91,11 @@ export default function Collector() {
           {/* Avatar */}
           <div className="flex items-center justify-center w-10 h-10 text-white bg-orange-500 rounded-full">
             <span className="text-sm font-medium">
-              {getInitials("Alim Ganteng")}
+              {getInitials(user?.name || "")}
             </span>
           </div>
           {/* Role Badge */}
           <div className="flex items-center gap-2 px-3 py-1.5 bg-white rounded-lg shadow-sm">
-            {/* <div className="h-2 w-2 rounded-full bg-[#216DD9]" /> */}
             <img src={ProfileIcon} alt="Profile" />
             <span className="text-sm font-medium">Collector Lapak</span>
           </div>
@@ -86,12 +108,12 @@ export default function Collector() {
         </div>
 
         {/* Date Card */}
-        <Card className="mb-6 text-white bg-gray-900">
+        {/* <Card className="mb-6 text-white bg-gray-900">
           <CardContent className="p-4">
-            <div className="text-sm text-gray-400">15 Jan 2024</div>
+            <div className="text-sm text-gray-400">{formattedDate}</div>
             <div className="flex items-baseline gap-2 mt-2">
-              <span className="text-3xl font-semibold">16</span>
-              <span className="text-3xl text-gray-400">/56</span>
+              <span className="text-3xl font-semibold">{collectedCount}</span>
+              <span className="text-3xl text-gray-400">/{totalTarget}</span>
             </div>
             <div className="mt-1 text-xs text-gray-400">
               Dana telah terkumpul
@@ -99,11 +121,26 @@ export default function Collector() {
             <Button
               className="w-full mt-4 bg-orange-500 hover:bg-orange-600"
               onClick={() => setIsModalOpen(true)}
+              disabled={isCreating}
             >
-              + Buat Setoran
+              {isCreating ? "Memproses..." : "+ Buat Setoran"}
             </Button>
           </CardContent>
-        </Card>
+        </Card> */}
+
+        <DepositCard
+          location="Lowokwaru"
+          collectedCount={16}
+          totalTarget={56}
+        />
+
+        <Button
+          onClick={() => setIsModalOpen(true)}
+          className="w-auto px-4 py-2 my-2 font-medium text-white rounded-md bg-gradient-to-b from-[#FE8300] to-[#ED3400]"
+        >
+          <span className="mr-2">+</span>
+          Buat Setoran
+        </Button>
 
         {/* Setoran List */}
         <div className="p-4 bg-white bg-opacity-40 rounded-3xl">
@@ -112,6 +149,7 @@ export default function Collector() {
             <Button
               variant="ghost"
               className="relative px-4 py-2 text-sm text-orange-500 group hover:bg-transparent hover:text-orange-500"
+              // onClick={() => navigate({ to: "/deposits" })}
             >
               <div className="absolute inset-0 rounded-full bg-[#F24D01] opacity-[0.02]" />
               <div className="absolute inset-0 border-2 border-[#F24D01] border-opacity-[0.14] rounded-full" />
@@ -123,25 +161,37 @@ export default function Collector() {
           </div>
 
           <ScrollArea>
-            <div className="space-y-2">
-              {setoran.map((item, index) => (
-                <div
-                  key={index}
-                  className="flex items-center gap-3 p-4 bg-white cursor-pointer rounded-xl hover:bg-gray-50"
-                >
-                  <div className="flex items-center justify-center w-8 h-8 bg-gray-100 rounded-lg">
-                    <Store className="w-4 h-4" />
-                  </div>
-                  <div>
-                    <div className="font-medium">{item.title}</div>
-                    <div className="text-sm text-gray-500">
-                      Nominal Setoran:{" "}
-                      <span className="text-orange-500">{item.nominal}</span>
+            {isLoading ? (
+              <div className="py-4 text-center">Loading...</div>
+            ) : deposits.length > 0 ? (
+              <div className="space-y-2">
+                {deposits.map((deposit, index) => (
+                  <div
+                    key={deposit.id || index}
+                    className="flex items-center gap-3 p-4 border cursor-pointer rounded-xl hover:bg-gray-50"
+                  >
+                    <div className="flex items-center justify-center w-8 h-8 bg-white rounded-lg">
+                      <Store className="w-4 h-4" />
+                    </div>
+                    <div>
+                      <div className="font-medium">{`Lapak ${deposit.merchant.name || ""}`}</div>
+                      <div className="text-sm text-gray-500">
+                        Nominal Setoran:{" "}
+                        <span className="text-orange-500">
+                          {typeof deposit.deposit_amount === "number"
+                            ? `Rp. ${deposit.deposit_amount.toLocaleString("id-ID")}`
+                            : deposit.deposit_amount || "Rp. -"}
+                        </span>
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            ) : (
+              <div className="py-4 text-center text-gray-500">
+                Belum ada setoran hari ini
+              </div>
+            )}
           </ScrollArea>
         </div>
       </div>
@@ -151,8 +201,8 @@ export default function Collector() {
         onClose={() => setIsModalOpen(false)}
         onSubmit={handleSubmit}
       />
-      {isModalSuccesOpen && (
-        <SuccessModal isOpen={setIsShowModalSuccess} onClose={handleClose} />
+      {isModalSuccessOpen && (
+        <SuccessModal isOpen={isModalSuccessOpen} onClose={handleClose} />
       )}
     </div>
   );

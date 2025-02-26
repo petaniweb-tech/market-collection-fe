@@ -1,21 +1,30 @@
 export interface ApiResponse<T> {
-  data: T;
+  success: boolean;
   message: string;
-  status: number;
+  data: T;
 }
 
 export interface PaginatedResponse<T> {
-  data: T[];
-  meta: {
-    total: number;
-    page: number;
-    limit: number;
-    totalPages: number;
-  };
+  records: T[];
+  total: number;
+  limit: number;
+  currentPage: number;
+  totalPage: number;
 }
 
-export type ApiError = {
-  message: string;
-  errors?: Record<string, string[]>;
-  status: number;
-};
+// export type ApiError = {
+//   message: string;
+//   errors?: Record<string, string[]>;
+//   status: number;
+// };
+
+export class ApiError extends Error {
+  constructor(
+    message: string,
+    public statusCode?: number,
+    public success?: boolean
+  ) {
+    super(message);
+    this.name = 'ApiError';
+  }
+}
