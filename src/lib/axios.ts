@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 import { ApiError } from "@/types/api.types";
-import axios from "axios";
+import axios, { AxiosRequestHeaders } from "axios";
 
 const baseURL = import.meta.env.VITE_API_URL;
 
@@ -48,7 +48,7 @@ axiosInstance.interceptors.request.use(
     const token = localStorage.getItem("token");
 
     if (!config.headers) {
-      config.headers = {};
+      config.headers = {} as AxiosRequestHeaders;
     }
 
     if (token) {

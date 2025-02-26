@@ -59,8 +59,8 @@ const FormLocation = ({ onOpenChange, setSubmitting }: FormLocationProps) => {
         location: values.location,
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
-      };
-
+      } as unknown as CreateLocationDTO;
+      
       await createLocation.mutateAsync(locationData);
       await refetch();
 

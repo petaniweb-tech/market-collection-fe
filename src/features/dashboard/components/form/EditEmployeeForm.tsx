@@ -90,7 +90,7 @@ const EditFormEmployee = ({
         role: values.role,
         phone_number: values.phone,
         location_id: values.location || null,
-      };
+      } as UpdateEmployeeDTO;
 
       await updateEmployee.mutateAsync({
         id: employeeId,
