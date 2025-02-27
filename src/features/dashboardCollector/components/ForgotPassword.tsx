@@ -73,7 +73,7 @@ const ForgotPassword: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen p-4 bg-gradient-to-b from-gray-100 to-gray-200">
+    <div className="min-h-screen p-4 bg-gradient-to-b from-gradients-background-from to-gradients-background-to">
       {/* Header */}
       <div className="flex items-center justify-between mb-8">
         <button
@@ -82,7 +82,7 @@ const ForgotPassword: React.FC = () => {
         >
           <ChevronLeft className="w-5 h-5 text-gray-600" />
         </button>
-        <div className="px-6 py-2 bg-white rounded-full shadow-sm">
+        <div className="px-6 py-2 bg-white rounded-lg shadow-sm">
           <h2 className="text-sm font-medium text-center">Lupa password</h2>
         </div>
         <div className="w-9"></div> {/* Empty div for spacing */}
@@ -120,7 +120,7 @@ const ForgotPassword: React.FC = () => {
             <Button
               type="submit"
               disabled={isSubmitting}
-              className="w-full py-6 text-white transition-opacity rounded-full bg-gradient-to-r from-orange-500 to-red-500 hover:opacity-90"
+              className="w-full py-6 text-white transition-opacity rounded-full bg-gradient-to-b from-[#FE8300] to-[#ED3400] hover:opacity-90"
             >
               {isSubmitting ? "Mengirim..." : "Konfirmasi"}
             </Button>

@@ -5,6 +5,7 @@ import DepositConfirmation from "../components/DepositConfirmation";
 import LoginMobileForm from "@/features/auth/components/LoginMobileForm";
 import ForgotPassword from "../components/ForgotPassword";
 import ResetPasswordConfirmation from "../components/ResetPasswordConfirmation";
+import ResetPassword from "../components/ResetPassword";
 
 export const loginCollectorRoute = createRoute({
   getParentRoute: () => rootRoute,
@@ -17,7 +18,14 @@ export const forgotPasswordCollectorRoute = createRoute({
   path: "/collector/forgot-password",
   component: ForgotPassword,
 });
-export const ResetPasswordConfirmationCollectorRoute = createRoute({
+
+export const resetPasswordCollectorRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/collector/reset-password",
+  component: ResetPassword,
+});
+
+export const resetPasswordConfirmationCollectorRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: "/collector/reset-password-confirmation",
   component: ResetPasswordConfirmation,
@@ -40,5 +48,6 @@ export const dashboardCollectorRoutes = [
   collectorRoute,
   depositConfirmationRoute,
   forgotPasswordCollectorRoute,
-  ResetPasswordConfirmationCollectorRoute,
+  resetPasswordConfirmationCollectorRoute,
+  resetPasswordCollectorRoute
 ];
