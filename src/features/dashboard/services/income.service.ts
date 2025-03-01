@@ -1,4 +1,4 @@
-import { Income } from "../types";
+import { Income } from "../types/income.types";
 import { ApiResponse, PaginatedResponse } from "@/types/api.types";
 import axiosInstance from "@/lib/axios";
 

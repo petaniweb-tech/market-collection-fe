@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { SheetContent } from "@/components/ui/sheet";
 import { Store } from "lucide-react";
 import { useCreateStore, useStores } from "../../hooks/useStore";
-import type { CreateStoreDTO } from "../../types";
+import type { CreateStoreDTO } from "../../types/income.types";
 import { useToast } from "@/hooks/use-toast";
 import { useForm } from "react-hook-form";
 import {

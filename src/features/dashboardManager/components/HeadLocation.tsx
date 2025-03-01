@@ -4,13 +4,18 @@ import { Card, CardContent } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useState } from "react";
 import SuccessModal from "./SuccessModal";
-import { useNavigate } from "@tanstack/react-router";
+import { Navigate, useNavigate } from "@tanstack/react-router";
 import { ArrowRight, Grid2X2, Store } from "lucide-react";
 import ProfileIcon from "@/assets/icon/ic_profile_user.svg";
 import DepositBankForm from "./DepositBankForm";
+import { useAuth } from "@/features/auth/hooks/useAuth";
+import { usePermissions } from "@/hooks/usePermission";
+import Unauthorized from "@/components/common/unauthorize/Unauthorize";
 
 export default function HeadLocation() {
   const navigate = useNavigate();
+  const { isAuthenticated } = useAuth();
+  const { isManager } = usePermissions();
 
   const getInitials = (name: string) => {
     return name
@@ -59,6 +64,16 @@ export default function HeadLocation() {
     // { title: "Lapak Blok A1", nominal: "Rp. 10.000" },
     // { title: "Lapak Blok A1", nominal: "Rp. 10.000" },
   ];
+
+  // Redirect to login if not authenticated
+  if (!isAuthenticated) {
+    return <Navigate to="/login" />;
+  }
+
+  // Show unauthorized page if user is not an admin
+  if (!isManager()) {
+    return <Unauthorized />;
+  }
 
   return (
     <div className="flex flex-col h-full min-h-screen bg-gradient-to-b from-gradients-background-from to-gradients-background-to">

@@ -6,7 +6,7 @@ import {
 } from "@tanstack/react-table";
 import { Button } from "@/components/ui/button";
 import { SkeletonRow } from "../page/SkeletonRow";
-import type { Location } from "../../types";
+import type { Location } from "../../types/income.types";
 import {
   ChevronLeft,
   ChevronRight,

@@ -75,7 +75,7 @@ export default function Collector() {
 
   // Redirect to login if not authenticated
   if (!isAuthenticated) {
-    return <Navigate to="/collector/login" />;
+    return <Navigate to="/login" />;
   }
 
   // Show unauthorized page if user is not an admin

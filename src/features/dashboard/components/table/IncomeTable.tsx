@@ -8,7 +8,7 @@ import {
 } from "@tanstack/react-table";
 import { Button } from "@/components/ui/button";
 import { SkeletonRow } from "../page/SkeletonRow";
-import type { Income } from "../../types";
+import type { Income } from "../../types/income.types";
 import {
   ChevronLeft,
   ChevronRight,

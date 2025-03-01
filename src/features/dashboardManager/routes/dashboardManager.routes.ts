@@ -3,11 +3,11 @@ import { rootRoute } from '@/routes/__root'
 import HeadLocation from '../components/HeadLocation'
 
 
-export const headLocationRoute = createRoute({
+export const managerRoute = createRoute({
   getParentRoute: () => rootRoute,
-  path: '/head-location',
+  path: '/manajer',
   component: HeadLocation,
 })
 
 
-export const dashboardHeadLocationRoutes = [headLocationRoute]
+export const dashboardManagerRoutes = [managerRoute]

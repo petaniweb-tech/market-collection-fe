@@ -4,8 +4,8 @@ import {
 } from "../../../hooks/useQueryWithConfig";
 import { storeService } from "../services/store.service";
 import { queryClient } from "../../../lib/react-query";
-import { CreateStoreDTO, UpdateStoreDTO } from "../types";
 import { keepPreviousData } from "@tanstack/react-query";
+import { CreateStoreDTO, UpdateStoreDTO } from "../types/store.types";
 
 export const QUERY_KEYS = {
   stores: ["stores"] as const,

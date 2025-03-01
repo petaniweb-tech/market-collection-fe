@@ -1,236 +1,4 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-// /* eslint-disable @typescript-eslint/no-explicit-any */
-// import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-// import {
-//   useQuery,
-//   useMutation,
-//   useQueryClient,
-//   QueryObserverResult
-// } from '@tanstack/react-query';
-// import { authService } from '../services/auth.service';
-// import { AuthState, User, LoginResponseData, LoginFormType } from '../types/auth.types';
-
-// // Query keys
-// export const AUTH_QUERY_KEYS = {
-//   USER: ['auth', 'user'],
-//   SESSION: ['auth', 'session'],
-// };
-
-// // Define auth context types with mutation states
-// interface AuthContextType {
-//   authState: AuthState;
-//   login: (data: LoginResponseData) => void;
-//   logout: () => Promise<void>;
-//   updateUser: (user: User) => void;
-//   isLoading: boolean;
-//   isLoginPending: boolean;
-//   isLogoutPending: boolean;
-//   refetchUser: () => Promise<QueryObserverResult<User | null>>;
-// }
-
-// // Define props for AuthProvider
-// interface AuthProviderProps {
-//   children: ReactNode;
-// }
-
-// // Default auth state
-// const defaultAuthState: AuthState = {
-//   isAuthenticated: false,
-//   user: null,
-//   token: null,
-//   expires_at: null,
-// };
-
-// // Create auth context with type definition
-// export const AuthContext = createContext<AuthContextType>({
-//   authState: defaultAuthState,
-//   login: () => {},
-//   logout: async () => {},
-//   updateUser: () => {},
-//   isLoading: false,
-//   isLoginPending: false,
-//   isLogoutPending: false,
-//   refetchUser: async () => ({ isSuccess: false } as any),
-// });
-
-// // Auth provider component
-// export function AuthProvider({ children }: AuthProviderProps) {
-//   const queryClient = useQueryClient();
-//   const [authState, setAuthState] = useState<AuthState>(() => {
-//     // Initialize from localStorage if available
-//     const token = localStorage.getItem('token');
-//     const expires_at = localStorage.getItem('expires_at');
-
-//     if (token && expires_at) {
-//       return {
-//         ...defaultAuthState,
-//         isAuthenticated: authService.isAuthenticated(),
-//         token,
-//         expires_at: parseInt(expires_at),
-//       };
-//     }
-//     return defaultAuthState;
-//   });
-
-//   // Fetch current user - will be cached and automatically refetched when needed
-//   const {
-//     data: user,
-//     isLoading: isUserLoading,
-//     refetch: refetchUser
-//   } = useQuery({
-//     queryKey: AUTH_QUERY_KEYS.USER,
-//     queryFn: authService.getCurrentUser,
-//     enabled: authState.isAuthenticated,
-//     staleTime: 1000 * 60 * 5, // 5 minutes
-//     refetchOnWindowFocus: false,
-//     refetchInterval: 1000 * 60 * 15, // Refresh token/user every 15 minutes
-//   });
-
-//   // Login mutation
-//   const loginMutation = useMutation({
-//     mutationFn: (loginData: LoginFormType) => authService.login(loginData),
-//     onSuccess: (data: LoginResponseData) => {
-//       // Update auth state with login response
-//       setAuthState({
-//         isAuthenticated: true,
-//         token: data.session.access_token,
-//         user: data.user,
-//         expires_at: data.session.expires_at,
-//       });
-
-//       // Update cached user data
-//       queryClient.setQueryData(AUTH_QUERY_KEYS.USER, data.user);
-//     },
-//   });
-
-//   // Logout mutation
-//   const logoutMutation = useMutation({
-//     mutationFn: authService.logout,
-//     onSuccess: () => {
-//       // Reset auth state
-//       setAuthState(defaultAuthState);
-
-//       // Clear cached queries
-//       queryClient.clear();
-//     },
-//   });
-
-//   // Update auth state when user data changes
-//   useEffect(() => {
-//     if (user && authState.isAuthenticated) {
-//       setAuthState(prev => ({
-//         ...prev,
-//         user,
-//       }));
-//     }
-//   }, [user, authState.isAuthenticated]);
-
-//   // Check token expiration periodically
-//   useEffect(() => {
-//     const checkTokenInterval = setInterval(() => {
-//       if (authState.isAuthenticated && !authService.isAuthenticated()) {
-//         // Token expired, log out
-//         logoutMutation.mutate();
-//       }
-//     }, 60000); // Check every minute
-
-//     return () => clearInterval(checkTokenInterval);
-//   }, [authState.isAuthenticated]);
-
-//   // Login function - directly updates state without mutation
-//   const login = (data: LoginResponseData): void => {
-//     setAuthState({
-//       isAuthenticated: true,
-//       token: data.session.access_token,
-//       user: data.user,
-//       expires_at: data.session.expires_at,
-//     });
-
-//     // Update cached user data
-//     queryClient.setQueryData(AUTH_QUERY_KEYS.USER, data.user);
-//   };
-
-//   // Logout function
-//   const logout = async (): Promise<void> => {
-//     await logoutMutation.mutateAsync();
-//   };
-
-//   // Update user function
-//   const updateUser = (updatedUser: User): void => {
-//     if (authState.user && authState.isAuthenticated) {
-//       // Update local state
-//       setAuthState(prev => ({
-//         ...prev,
-//         user: updatedUser,
-//       }));
-
-//       // Update query cache
-//       queryClient.setQueryData(AUTH_QUERY_KEYS.USER, updatedUser);
-
-//       // Update localStorage
-//       localStorage.setItem('user', JSON.stringify(updatedUser));
-//     }
-//   };
-
-//   // Calculate loading states
-//   const isLoading = isUserLoading || loginMutation.isPending || logoutMutation.isPending;
-//   const isLoginPending = loginMutation.isPending;
-//   const isLogoutPending = logoutMutation.isPending;
-
-//   // Return the provider with createElement to avoid JSX type issues
-//   return React.createElement(
-//     AuthContext.Provider,
-//     {
-//       value: {
-//         authState,
-//         login,
-//         logout,
-//         updateUser,
-//         isLoading,
-//         isLoginPending,
-//         isLogoutPending,
-//         refetchUser
-//       }
-//     },
-//     !isUserLoading ? children : null
-//   );
-// }
-
-// // Custom hook to use auth context with React Query
-// export function useAuth() {
-//   const context = useContext(AuthContext);
-
-//   if (!context) {
-//     throw new Error('useAuth must be used within an AuthProvider');
-//   }
-
-//   const {
-//     authState,
-//     login,
-//     logout,
-//     updateUser,
-//     isLoading,
-//     isLoginPending,
-//     isLogoutPending,
-//     refetchUser
-//   } = context;
-
-//   return {
-//     isAuthenticated: authState.isAuthenticated,
-//     user: authState.user,
-//     token: authState.token,
-//     expiresAt: authState.expires_at,
-//     role: authState.user?.role,
-//     login,
-//     logout,
-//     updateUser,
-//     isLoading,
-//     isLoginPending,
-//     isLogoutPending,
-//     refetchUser,
-//   };
-// }
-
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import React, {
   createContext,
@@ -278,6 +46,14 @@ interface AuthContextType {
   isLogoutPending: boolean;
   isRefreshPending: boolean;
   refetchUser: () => Promise<QueryObserverResult<User | null>>;
+  forgotPassword: (email: string) => Promise<void>;
+  isForgotPasswordPending: boolean;
+  resetPassword: (
+    token: string,
+    password: string,
+    confirm_password: string
+  ) => Promise<void>;
+  isResetPasswordPending: boolean;
 }
 
 // Define props for AuthProvider
@@ -308,7 +84,10 @@ export const AuthContext = createContext<AuthContextType>({
   isVerifyLoading: false,
   isVerifyError: false,
   verifyErrorMessage: null,
-
+  forgotPassword: async () => {},
+  isForgotPasswordPending: false,
+  resetPassword: async () => {},
+  isResetPasswordPending: false,
   refetchUser: async () => ({ isSuccess: false }) as any,
 });
 
@@ -361,6 +140,62 @@ export function AuthProvider({ children }: AuthProviderProps) {
       queryClient.setQueryData(AUTH_QUERY_KEYS.USER, data.user);
     },
   });
+
+  // Add a new state for forgot password loading
+  const [isForgotPasswordPending, setIsForgotPasswordPending] = useState(false);
+
+  // Forgot password mutation
+  const forgotPasswordMutation = useMutation({
+    mutationFn: (email: string) => authService.forgotPassword(email),
+  });
+
+  // Forgot password function
+  const forgotPassword = async (email: string): Promise<void> => {
+    try {
+      setIsForgotPasswordPending(true);
+      await authService.forgotPassword(email);
+    } finally {
+      setIsForgotPasswordPending(false);
+    }
+  };
+
+  // Add state for reset password loading
+  const [isResetPasswordPending, setIsResetPasswordPending] = useState(false);
+
+  // Reset password mutation
+  const resetPasswordMutation = useMutation({
+    mutationFn: (data: {
+      token: string;
+      password: string;
+      confirm_password: string;
+    }) => {
+      // We don't need to decode the token here since it's handled in the service
+      return authService.resetPassword(
+        data.token,
+        data.password,
+        data.confirm_password
+      );
+    },
+  });
+
+  // Reset password function
+  const resetPassword = async (
+    token: string,
+    password: string,
+    confirm_password: string
+  ): Promise<void> => {
+    try {
+      setIsResetPasswordPending(true);
+
+      // We don't need to decode the token here since it's handled in the service
+      await authService.resetPassword(token, password, confirm_password);
+    } catch (error) {
+      console.error("Reset password error:", error);
+      throw error; // Rethrow to allow component to handle the error
+    } finally {
+      setIsResetPasswordPending(false);
+    }
+  };
 
   // Email verification mutation
   const verifyEmailMutation = useMutation({
@@ -482,8 +317,17 @@ export function AuthProvider({ children }: AuthProviderProps) {
       setIsVerifyError(false);
       setVerifyErrorMessage(null);
 
-      const response = await authService.verifyEmail(token);
-      return response;
+      // Special handling for 204 response
+      try {
+        const response = await authService.verifyEmail(token);
+        return response;
+      } catch (error) {
+        // Double-check for 204 status at this level too
+        if (error.response?.status === 204) {
+          return { success: true, message: "Email verified successfully" };
+        }
+        throw error;
+      }
     } catch (error) {
       setIsVerifyError(true);
       setVerifyErrorMessage(
@@ -494,6 +338,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
       setIsVerifyLoading(false);
     }
   };
+
   // Logout function
   const logout = async (): Promise<void> => {
     await logoutMutation.mutateAsync();
@@ -555,6 +400,12 @@ export function AuthProvider({ children }: AuthProviderProps) {
         isVerifyLoading,
         isVerifyError,
         verifyErrorMessage,
+        forgotPassword,
+        isForgotPasswordPending:
+          forgotPasswordMutation.isPending || isForgotPasswordPending,
+        resetPassword,
+        isResetPasswordPending:
+          resetPasswordMutation.isPending || isResetPasswordPending,
       },
     },
     !isUserLoading ? children : null
@@ -584,6 +435,10 @@ export function useAuth() {
     isVerifyLoading,
     isVerifyError,
     verifyErrorMessage,
+    forgotPassword,
+    isForgotPasswordPending,
+    resetPassword,
+    isResetPasswordPending,
   } = context;
 
   return {
@@ -605,5 +460,9 @@ export function useAuth() {
     isVerifyLoading,
     isVerifyError,
     verifyErrorMessage,
+    forgotPassword,
+    isForgotPasswordPending,
+    resetPassword,
+    isResetPasswordPending,
   };
 }

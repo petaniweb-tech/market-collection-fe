@@ -14,7 +14,7 @@ import { SheetContent } from "@/components/ui/sheet";
 import { UserRound } from "lucide-react";
 import { useCreateEmployee } from "../../hooks/useEmployee";
 
-import type { CreateEmployeeDTO } from "../../types";
+import type { CreateEmployeeDTO } from "../../types/income.types";
 import { useToast } from "@/hooks/use-toast";
 import { useForm } from "react-hook-form";
 import {

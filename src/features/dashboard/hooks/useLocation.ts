@@ -4,8 +4,8 @@ import {
 } from "../../../hooks/useQueryWithConfig";
 import { locationService } from "../services/location.service";
 import { queryClient } from "../../../lib/react-query";
-import { CreateLocationDTO } from "../types";
 import { keepPreviousData } from "@tanstack/react-query";
+import { CreateLocationDTO } from "../types/location.types";
 
 export const QUERY_KEYS = {
   locations: ["locations"] as const,

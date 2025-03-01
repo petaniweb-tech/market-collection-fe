@@ -1,6 +1,6 @@
-import { Store, CreateStoreDTO, UpdateStoreDTO } from "../types";
 import { ApiResponse, PaginatedResponse } from "@/types/api.types";
 import axiosInstance from "@/lib/axios";
+import { CreateStoreDTO, Store, UpdateStoreDTO } from "../types/store.types";
 
 // Store API endpoints
 const STORE_ENDPOINTS = {

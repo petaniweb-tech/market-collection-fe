@@ -6,10 +6,11 @@ export function RootLayout() {
   const matches = useMatches();
   const allowedRoutes = [
     "/dashboard",
-    "/dashboard/employee",
-    "/dashboard/location",
-    "/dashboard/store",
+    "/dashboard/pegawai",
+    "/dashboard/lokasi",
+    "/dashboard/lapak",
     "/dashboard/pendapatan",
+    "/dashboard/setoran"
   ];
   const showHeader = matches.some((match) =>
     allowedRoutes.includes(match.pathname)

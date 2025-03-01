@@ -1,4 +1,4 @@
-import { Store } from "@/features/dashboard/types/income.types";
+import { Store } from "./store.types";
 
 export interface CollectorDeposit {
   id: string;
@@ -9,17 +9,18 @@ export interface CollectorDeposit {
   updated_at: string;
   created_by: string;
   updated_by: string;
-  merchant: Store;
+  merchant: Store | null;
 }
 
+// Interface for creating a new collector deposit
 export interface CreateCollectorDepositDTO {
-  deposit_amount: number;
   merchant_id: string;
-  is_open: boolean;
+  deposit_amount: number;
+  is_open?: boolean;
 }
 
+// Interface for updating a collector deposit
 export interface UpdateCollectorDepositDTO {
-  deposit_amount: number;
-  merchant_id: string;
-  is_open: boolean;
+  deposit_amount?: number;
+  is_open?: boolean;
 }

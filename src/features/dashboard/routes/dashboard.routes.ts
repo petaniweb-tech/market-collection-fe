@@ -5,6 +5,7 @@ import Location from "../components/page/Location";
 import Store from "../components/page/Store";
 import Dashboard from "../components/page/Dashboard";
 import Income from "../components/page/Income";
+import Deposit from "../components/page/Deposit";
 
 // export const indexRoute = createRoute({
 //   getParentRoute: () => rootRoute,
@@ -20,19 +21,19 @@ export const dashboardRoute = createRoute({
 
 export const employeeRoute = createRoute({
   getParentRoute: () => rootRoute,
-  path: "/dashboard/employee",
+  path: "/dashboard/pegawai",
   component: Employee,
 });
 
 export const locationRoute = createRoute({
   getParentRoute: () => rootRoute,
-  path: "/dashboard/location",
+  path: "/dashboard/lokasi",
   component: Location,
 });
 
 export const storeRoute = createRoute({
   getParentRoute: () => rootRoute,
-  path: "/dashboard/store",
+  path: "/dashboard/lapak",
   component: Store,
 });
 
@@ -42,10 +43,17 @@ export const incomeRoute = createRoute({
   component: Income,
 });
 
+export const depositRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/dashboard/setoran",
+  component: Deposit,
+});
+
 export const dashboardRoutes = [
   dashboardRoute,
   employeeRoute,
   locationRoute,
   storeRoute,
   incomeRoute,
+  depositRoute,
 ];

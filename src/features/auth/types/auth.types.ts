@@ -72,3 +72,10 @@ export interface VerificationMethods {
   isVerifyError: boolean;
   verifyErrorMessage: string | null;
 }
+
+export interface DecodedToken {
+  userId: string;
+  email: string;
+  iat: number;
+  exp: number;
+}

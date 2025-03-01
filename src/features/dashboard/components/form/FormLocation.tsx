@@ -15,7 +15,7 @@ import {
 import { useCreateLocation, useLocations } from "../../hooks/useLocation";
 import { useToast } from "@/hooks/use-toast";
 import LocationSquare from "@/assets/icon/ic_location_square.svg";
-import type { CreateLocationDTO } from "../../types";
+import type { CreateLocationDTO } from "../../types/income.types";
 import DistrictComboBox from "@/components/common/comboBox/DistrictComboBox";
 import { Textarea } from "@/components/ui/textarea";
 

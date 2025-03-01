@@ -1,7 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Employee, CreateEmployeeDTO, UpdateEmployeeDTO } from "../types";
+
 import { ApiResponse, PaginatedResponse } from "@/types/api.types";
 import axiosInstance from "@/lib/axios";
+import { CreateEmployeeDTO, Employee, UpdateEmployeeDTO } from "../types/employee.types";
 
 // Updated endpoints to match your API structure
 const EMPLOYEE_ENDPOINTS = {

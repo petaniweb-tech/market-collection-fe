@@ -6,7 +6,6 @@
 // import { dashboardHeadLocationRoutes } from "@/features/dashboardHeadLocation/routes/dashboardHeadLocation.routes";
 // import { dashboardRoutes } from "@/features/dashboard/routes/dashboard.routes";
 
-
 // const routeTree = rootRoute.addChildren([
 //   protectedRoute,
 //   ...authRoutes,
@@ -26,45 +25,38 @@
 // routes/index.ts
 import { createRoute, createRouter } from "@tanstack/react-router";
 import { rootRoute } from "./__root";
-import { 
-  dashboardProtectedRoute, 
+import {
+  dashboardProtectedRoute,
   collectorProtectedRoute,
-  headLocationProtectedRoute
+  managerProtectedRoute,
 } from "./protected";
 import { authRoutes } from "../features/auth/routes/auth.routes";
 import { dashboardCollectorRoutes } from "../features/dashboardCollector/routes/dashboardCollector.routes";
-import { dashboardHeadLocationRoutes } from "@/features/dashboardHeadLocation/routes/dashboardHeadLocation.routes";
+import { dashboardManagerRoutes } from "@/features/dashboardManager/routes/dashboardManager.routes";
 import { dashboardRoutes } from "@/features/dashboard/routes/dashboard.routes";
 import Unauthorized from "@/components/common/unauthorize/Unauthorize";
-
 
 // Define the unauthorized route
 const unauthorizedRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: "/unauthorized",
-  component: Unauthorized
+  component: Unauthorized,
 });
 
-// Add auth routes directly to root 
+// Add auth routes directly to root
 const routeTree = rootRoute.addChildren([
   // Public routes
   ...authRoutes,
   unauthorizedRoute,
-  
+
   // Dashboard routes (Admin only)
-  dashboardProtectedRoute.addChildren([
-    ...dashboardRoutes,
-  ]),
-  
+  dashboardProtectedRoute.addChildren([...dashboardRoutes]),
+
   // Collector routes
-  collectorProtectedRoute.addChildren([
-    ...dashboardCollectorRoutes,
-  ]),
-  
+  collectorProtectedRoute.addChildren([...dashboardCollectorRoutes]),
+
   // Manager routes
-  headLocationProtectedRoute.addChildren([
-    ...dashboardHeadLocationRoutes,
-  ])
+  managerProtectedRoute.addChildren([...dashboardManagerRoutes]),
 ]);
 
 export const router = createRouter({ routeTree });

@@ -13,7 +13,7 @@ import {
 import { SheetContent } from "@/components/ui/sheet";
 import { UserRound } from "lucide-react";
 import { useUpdateEmployee, useEmployee } from "../../hooks/useEmployee";
-import type { UpdateEmployeeDTO } from "../../types";
+import type { UpdateEmployeeDTO } from "../../types/income.types";
 import { useToast } from "@/hooks/use-toast";
 import { useForm } from "react-hook-form";
 import {

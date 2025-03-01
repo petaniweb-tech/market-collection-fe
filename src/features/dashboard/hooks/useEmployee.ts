@@ -5,8 +5,8 @@ import {
 } from "../../../hooks/useQueryWithConfig";
 import { employeeService } from "../services/employee.service";
 import { queryClient } from "../../../lib/react-query";
-import { UpdateEmployeeDTO, CreateEmployeeDTO } from "../types";
 import { keepPreviousData } from "@tanstack/react-query";
+import { CreateEmployeeDTO, UpdateEmployeeDTO } from "../types/employee.types";
 
 export const QUERY_KEYS = {
   employees: ["employees"] as const,

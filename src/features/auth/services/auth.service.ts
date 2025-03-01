@@ -1,5 +1,6 @@
 import axiosInstance from "@/lib/axios";
 import {
+  DecodedToken,
   LoginFormType,
   LoginResponseData,
   User,
@@ -61,12 +62,16 @@ export const authService = {
   },
 
   // Verify email with token
-  // Verify email with token
   async verifyEmail(token: string): Promise<VerifyEmailResponse> {
     try {
       const response = await axiosInstance.get<
         ApiResponse<VerifyEmailResponse>
       >(`${AUTH_ENDPOINTS.VERIFY_EMAIL}?token=${token}`);
+
+      // Handle 204 No Content response as success
+      if (response.status === 204) {
+        return { success: true, message: "Email verified successfully" };
+      }
 
       if (!response.data.success) {
         throw new Error(response.data.message || "Email verification failed");
@@ -217,6 +222,7 @@ export const authService = {
           email,
         }
       );
+      
 
       if (!response.data.success) {
         throw new Error(
@@ -231,24 +237,36 @@ export const authService = {
     }
   },
 
-  // Reset password
-  async resetPassword(token: string, password: string): Promise<void> {
+  async resetPassword(
+    token: string,
+    password: string,
+    confirm_password: string
+  ): Promise<void> {
     try {
-      const response = await axiosInstance.post<ApiResponse<unknown>>(
+      const decoded = decodeJWT(token);
+  
+      const response = await axiosInstance.post(
         AUTH_ENDPOINTS.RESET_PASSWORD,
         {
-          token,
+          email: decoded?.email,
           password,
+          confirm_password,
         }
       );
-
-      if (!response.data.success) {
-        throw new Error(response.data.message || "Failed to reset password");
+  
+      // 204 No Content is a successful response, so we don't need to check for response.data
+      // Just check if the status is 204 or in the 2xx range
+      if (response.status !== 204 && !(response.status >= 200 && response.status < 300)) {
+        throw new Error("Failed to reset password");
       }
+      
+      // If we reach here, it was successful - no need to check response.data.success
+      
     } catch (error) {
       console.error("Reset password error:", error);
+      // Use optional chaining to safely access nested properties
       throw new Error(
-        error.response?.data?.message || "Failed to reset password"
+        error?.response?.data?.message || "Failed to reset password"
       );
     }
   },
@@ -281,3 +299,25 @@ export const authService = {
     }
   },
 };
+
+// Fix for the JWT utility function
+export function decodeJWT(token: string): DecodedToken | null {
+  try {
+    // Split the token into parts
+    const parts = token.split(".");
+    if (parts.length !== 3) {
+      return null;
+    }
+
+    // Decode the payload (second part)
+    const payload = parts[1];
+    // Base64 decode and parse as JSON
+    const decoded = JSON.parse(
+      atob(payload.replace(/-/g, "+").replace(/_/g, "/"))
+    );
+    return decoded as DecodedToken;
+  } catch (error) {
+    console.error("Error decoding JWT:", error);
+    return null;
+  }
+}

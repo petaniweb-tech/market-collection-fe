@@ -17,6 +17,7 @@ import {
   FormItem,
   FormMessage,
 } from "@/components/ui/form";
+import { useAuth } from "../hooks/useAuth";
 
 // Define Zod schema for form validation
 const forgotPasswordSchema = z.object({
@@ -32,6 +33,7 @@ type ForgotPasswordFormValues = z.infer<typeof forgotPasswordSchema>;
 const ForgotPassword: React.FC = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { forgotPassword } = useAuth();
 
   // Initialize form with React Hook Form + Zod validation
   const form = useForm<ForgotPasswordFormValues>({
@@ -45,24 +47,24 @@ const ForgotPassword: React.FC = () => {
 
   const onSubmit = async (values: ForgotPasswordFormValues) => {
     try {
-      // Replace this with your actual API call
-      // await authService.requestPasswordReset(values.email);
-      
+      await forgotPassword(values.email);
+
       // Show success toast
       toast({
         title: "Email terkirim",
         description: "Silahkan periksa email Anda untuk reset password",
       });
-      
+
       // Navigate to confirmation page
-      navigate({ 
-        to: "/collector/reset-password-confirmation",
-        search: { email: values.email } 
+      navigate({
+        to: "/reset-password-confirmation",
+        search: { email: values.email },
       });
     } catch (error: any) {
       toast({
         title: "Gagal mengirim email reset",
-        description: error?.message || "Terjadi kesalahan saat mengirim email reset",
+        description:
+          error?.message || "Terjadi kesalahan saat mengirim email reset",
         variant: "destructive",
       });
     }
@@ -73,14 +75,14 @@ const ForgotPassword: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen p-4 bg-gradient-to-b from-gradients-background-from to-gradients-background-to">
+    <div className="min-h-screen p-4 lg:flex lg:items-center lg:justify-center bg-gradient-to-b from-gradients-background-from to-gradients-background-to">
       {/* Header */}
-      <div className="flex items-center justify-between mb-8">
+      <div className="flex items-center justify-between mb-8 lg:hidden">
         <button
           onClick={handleGoBack}
           className="p-2 bg-white rounded-full shadow-sm"
         >
-          <ChevronLeft className="w-5 h-5 text-gray-600" />
+          <ChevronLeft className="w-5 h-5 text-gray-600 " />
         </button>
         <div className="px-6 py-2 bg-white rounded-lg shadow-sm">
           <h2 className="text-sm font-medium text-center">Lupa password</h2>
@@ -92,8 +94,8 @@ const ForgotPassword: React.FC = () => {
       <div className="mt-8">
         <h1 className="mb-2 text-2xl font-semibold">Lupa password</h1>
         <p className="mb-6 text-gray-500">
-          Silahkan masukkan email untuk menerima tautan untuk
-          mengatur ulang password anda
+          Silahkan masukkan email untuk menerima tautan untuk mengatur ulang
+          password anda
         </p>
 
         <Form {...form}>

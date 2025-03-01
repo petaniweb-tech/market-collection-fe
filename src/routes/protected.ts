@@ -41,7 +41,7 @@ export const collectorProtectedRoute = createRoute({
 });
 
 // Dashboard Head Location feature - Manager only
-export const headLocationProtectedRoute = createRoute({
+export const managerProtectedRoute = createRoute({
   getParentRoute: () => rootRoute,
   id: "head-location-protected",
   component: ManagerProtectedLayout,
