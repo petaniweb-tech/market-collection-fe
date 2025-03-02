@@ -242,7 +242,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
       queryClient.clear();
 
       // Redirect to login
-      window.location.href = "/login";
+      window.location.href = "/";
     },
   });
 

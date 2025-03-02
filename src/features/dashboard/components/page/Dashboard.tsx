@@ -42,11 +42,11 @@ const Dashboard = () => {
   const { isAdmin } = usePermissions();
   // const { isAuthenticated, user } = useAuth();
   // if (!isAuthenticated) {
-  //   return <Navigate to="/login" />;
+  //   return <Navigate to="/" />;
   // }
 
   // if (user?.role !== 'admin') {
-  //   return <Navigate to="/login" />;
+  //   return <Navigate to="/" />;
   // }
 
   // useEffect(() => {
@@ -95,7 +95,7 @@ const Dashboard = () => {
 
   // Redirect to login if not authenticated
   if (!isAuthenticated) {
-    return <Navigate to="/login" />;
+    return <Navigate to="/" />;
   }
 
   // Show unauthorized page if user is not an admin

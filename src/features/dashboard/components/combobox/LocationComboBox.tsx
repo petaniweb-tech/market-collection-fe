@@ -10,6 +10,7 @@ import { Input } from "@/components/ui/input";
 import { useLocations } from "../../hooks/useLocation";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
+import { useMemo } from "react";
 
 interface LocationComboBoxProps {
   value: string;
@@ -26,16 +27,19 @@ const LocationComboBox = ({
 }: LocationComboBoxProps) => {
   const [open, setOpen] = React.useState(false);
   const [searchTerm, setSearchTerm] = React.useState("");
-  const [selectedLocationName, setSelectedLocationName] = React.useState<string>("");
+  const [selectedLocationName, setSelectedLocationName] =
+    React.useState<string>("");
 
   // Fetch locations using the hook
   const { data: locationData, isLoading } = useLocations({
     search: searchTerm || undefined,
-    // limit: 5,
     order: "asc",
   });
 
-  const locations = locationData?.records || [];
+  const locations = useMemo(
+    () => locationData?.records || [],
+    [locationData?.records]
+  );
 
   // Effect to update selected location name when locations change or value changes
   React.useEffect(() => {
@@ -50,7 +54,11 @@ const LocationComboBox = ({
   // Effect to fetch initial selected location name if not in current results
   React.useEffect(() => {
     const fetchInitialLocation = async () => {
-      if (value && !selectedLocationName && !locations.find(loc => loc.id === value)) {
+      if (
+        value &&
+        !selectedLocationName &&
+        !locations.find((loc) => loc.id === value)
+      ) {
         try {
           // Assuming you have an API endpoint to fetch a single location
           const response = await fetch(`/api/locations/${value}`);
@@ -59,7 +67,7 @@ const LocationComboBox = ({
             setSelectedLocationName(location.name || "");
           }
         } catch (error) {
-          console.error('Error fetching location:', error);
+          console.error("Error fetching location:", error);
         }
       }
     };
@@ -103,7 +111,7 @@ const LocationComboBox = ({
           <ChevronsUpDown className="w-4 h-4 ml-2 opacity-50 shrink-0" />
         </Button>
       </PopoverTrigger>
-      <PopoverContent 
+      <PopoverContent
         className={cn(
           "p-2",
           isInsideSheet ? "w-[--radix-popover-trigger-width]" : "w-44"

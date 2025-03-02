@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useNavigate } from "@tanstack/react-router";
@@ -11,7 +11,6 @@ import { Eye, EyeOff } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { authService } from "../services/auth.service";
 import LogoIcon from "@/assets/icon/ic_union.svg";
-import { usePermissions } from "@/hooks/usePermission";
 
 export default function LoginForm() {
   const [showPassword, setShowPassword] = useState(false);
@@ -20,6 +19,29 @@ export default function LoginForm() {
 
   const navigate = useNavigate();
   const { isAuthenticated, login } = useAuth();
+
+  // Function to navigate based on user role
+  const navigateBasedOnRole = useCallback(
+    (role: string) => {
+      switch (role) {
+        case "admin":
+          navigate({ to: "/dashboard" });
+          break;
+        case "collector":
+          navigate({ to: "/collector" });
+          break;
+        case "manager":
+          navigate({ to: "/manajer" });
+          break;
+        case "supervisor":
+          navigate({ to: "/dashboard" }); // Adjust as needed
+          break;
+        default:
+          navigate({ to: "/dashboard" }); // Default fallback
+      }
+    },
+    [navigate]
+  );
 
   // Redirect if already authenticated based on role
   useEffect(() => {
@@ -38,27 +60,7 @@ export default function LoginForm() {
         navigate({ to: "/dashboard" }); // Fallback if no user data
       }
     }
-  }, [isAuthenticated, navigate]);
-
-  // Function to navigate based on user role
-  const navigateBasedOnRole = (role: string) => {
-    switch (role) {
-      case "admin":
-        navigate({ to: "/dashboard" });
-        break;
-      case "collector":
-        navigate({ to: "/collector" });
-        break;
-      case "manager":
-        navigate({ to: "/manajer" });
-        break;
-      case "supervisor":
-        navigate({ to: "/dashboard" }); // Adjust as needed
-        break;
-      default:
-        navigate({ to: "/dashboard" }); // Default fallback
-    }
-  };
+  }, [isAuthenticated, navigate, navigateBasedOnRole]);
 
   // Initialize React Hook Form with Zod schema
   const {

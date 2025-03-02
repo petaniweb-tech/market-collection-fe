@@ -152,7 +152,7 @@ export default function LoginMobileForm() {
             <button
               type="button"
               className="text-sm text-blue-600"
-                onClick={() => navigate({ to: "/collector/forgot-password" })}
+              onClick={() => navigate({ to: "/lupa-password" })}
             >
               Lupa password?
             </button>

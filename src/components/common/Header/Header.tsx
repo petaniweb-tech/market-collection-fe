@@ -33,7 +33,7 @@
 //       await logout();
 
 //       // Force a hard redirect to the login page
-//       window.location.href = "/login";
+//       window.location.href = "/";
 //     } catch (error) {
 //       console.error("Logout failed:", error);
 //       setIsLoggingOut(false);
@@ -248,7 +248,7 @@ export function Header() {
       await logout();
 
       // Force a hard redirect to the login page
-      window.location.href = "/login";
+      window.location.href = "/";
     } catch (error) {
       console.error("Logout failed:", error);
       setIsLoggingOut(false);

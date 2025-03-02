@@ -10,7 +10,7 @@ export default function Home() {
     // setIsLoggedIn(false); // Update your isLoggedIn state
 
     // Redirect to login page
-    navigate({to: '/login'}); 
+    navigate({ to: "/" }); 
   };
 
   return (

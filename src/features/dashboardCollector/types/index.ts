@@ -1,4 +1,4 @@
-import { Store } from "@/features/dashboard/types/income.types";
+import { Store } from "@/features/dashboard/types/store.types";
 
 export interface CollectorDeposit {
   id: string;

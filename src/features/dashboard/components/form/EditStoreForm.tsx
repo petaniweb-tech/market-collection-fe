@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { SheetContent } from "@/components/ui/sheet";
 import { Store } from "lucide-react";
 import { useUpdateStore, useStores, useStore } from "../../hooks/useStore";
-import type { UpdateStoreDTO } from "../../types/income.types";
+import type { UpdateStoreDTO } from "../../types/store.types";
 import { useToast } from "@/hooks/use-toast";
 import { useForm } from "react-hook-form";
 import { useQueryClient } from "@tanstack/react-query";

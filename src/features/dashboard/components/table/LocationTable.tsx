@@ -6,13 +6,12 @@ import {
 } from "@tanstack/react-table";
 import { Button } from "@/components/ui/button";
 import { SkeletonRow } from "../page/SkeletonRow";
-import type { Location } from "../../types/income.types";
+import type { Location } from "../../types/location.types";
 import {
   ChevronLeft,
   ChevronRight,
   Edit,
   MoreHorizontal,
-  MapPin,
   Trash2,
   Building2,
 } from "lucide-react";
@@ -42,22 +41,16 @@ const LocationTable = ({
   data,
   isLoading,
   isSubmitting,
-  onDelete,
   currentPage,
   totalPages,
   onPageChange,
-  onEditComplete,
 }: LocationTableProps) => {
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [locationToDelete, setLocationToDelete] = useState<string | null>(null);
-  const [editModalOpen, setEditModalOpen] = useState(false);
-  const [locationToEdit, setLocationToEdit] = useState<string | null>(null);
-  const [isEditSubmitting, setIsEditSubmitting] = useState(false);
   const deleteLocation = useDeleteLocation();
 
   const handleEdit = (id: string) => {
-    setLocationToEdit(id);
-    setEditModalOpen(true);
+    console.log(id);
   };
 
   const handleDelete = (id: string) => {
@@ -79,7 +72,8 @@ const LocationTable = ({
       console.error("Delete failed:", error);
       toast({
         title: "Gagal menghapus lokasi",
-        description: error?.message || "Terjadi kesalahan saat menghapus lokasi",
+        description:
+          error?.message || "Terjadi kesalahan saat menghapus lokasi",
         variant: "destructive",
       });
     } finally {
