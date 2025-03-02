@@ -1,6 +1,6 @@
 import { ApiResponse, PaginatedResponse } from "@/types/api.types";
 import axiosInstance from "@/lib/axios";
-import { CreateLocationDTO } from "../types/location.types";
+import { CreateLocationDTO, Location } from "../types/location.types";
 
 // Location API endpoints
 const LOCATION_ENDPOINTS = {
