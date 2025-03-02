@@ -14,7 +14,6 @@ import { SheetContent } from '@/components/ui/sheet';
 import { UserRound } from 'lucide-react';
 import { useCreateEmployee } from '../../hooks/useEmployee';
 
-import type { CreateEmployeeDTO } from '../../types/employee.types';
 import { useToast } from '@/hooks/use-toast';
 import { useForm } from 'react-hook-form';
 import {
@@ -28,6 +27,7 @@ import {
 } from '@/components/ui/form';
 import PersonSquare from '@/assets/icon/ic_person_square.svg';
 import LocationComboBox from '../combobox/LocationComboBox';
+import { CreateEmployeeDTO } from '../../types/employee.types';
 
 // Form validation schema
 const formSchema = z.object({

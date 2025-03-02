@@ -1,7 +1,7 @@
-import React, { useState } from "react";
-import { CheckCircle2, XCircle } from "lucide-react";
-import { format, isToday } from "date-fns";
-import { id } from "date-fns/locale";
+import React, { useState } from 'react';
+import { CheckCircle2, XCircle } from 'lucide-react';
+import { format, isToday } from 'date-fns';
+import { id } from 'date-fns/locale';
 
 // ShadCN UI components
 import {
@@ -10,12 +10,12 @@ import {
   DialogHeader,
   DialogTitle,
   DialogDescription,
-} from "@/components/ui/dialog";
-import { Separator } from "@/components/ui/separator";
-import { EnhancedDatePicker } from "../datepicker/DatePicker";
-import { useStore } from "../../hooks/useStore";
-import { useHistoricalTransactions } from "../../hooks/useCollectorDeposit";
-import { HistoryTransaction } from "../../types/historyTransaction.types";
+} from '@/components/ui/dialog';
+import { Separator } from '@/components/ui/separator';
+import { EnhancedDatePicker } from '../datepicker/DatePicker';
+import { useStore } from '../../hooks/useStore';
+import { useHistoricalTransactions } from '../../hooks/useCollectorDeposit';
+import { HistoryTransaction } from '../../types/historyTransaction.types';
 
 interface HistoryTransactionDialogProps {
   storeId: string;
@@ -31,17 +31,17 @@ const HistoryTransactionDialog: React.FC<HistoryTransactionDialogProps> = ({
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
 
   // Format date for API request
-  const formattedDate = format(selectedDate, "yyyy-MM-dd");
+  const formattedDate = format(selectedDate, 'yyyy-MM-dd');
 
   // First section: Fetch store details using the existing hook
   const { data: store, isLoading: isStoreLoading } = useStore(
-    open ? storeId : ""
+    open ? storeId : ''
   );
 
   // Second section: Fetch transaction history using the hook from useCollectorDeposit
   const { data: transactions, isLoading: isTransactionsLoading } =
     useHistoricalTransactions(
-      open ? storeId : "",
+      open ? storeId : '',
       open ? formattedDate : undefined
     );
 
@@ -49,10 +49,10 @@ const HistoryTransactionDialog: React.FC<HistoryTransactionDialogProps> = ({
 
   const getTransactionHeaderText = () => {
     if (isToday(selectedDate)) {
-      return "Transaksi hari ini";
+      return 'Transaksi hari ini';
     } else {
       // Format the date as "Transaksi pada 16 Apr 2025"
-      return `Transaksi pada ${format(selectedDate, "d MMM yyyy", { locale: id })}`;
+      return `Transaksi pada ${format(selectedDate, 'd MMM yyyy', { locale: id })}`;
     }
   };
 
@@ -69,13 +69,13 @@ const HistoryTransactionDialog: React.FC<HistoryTransactionDialogProps> = ({
     if (!transactions) return [];
 
     return transactions.map((transaction) => ({
-      date: format(new Date(transaction.created_at), "d MMM yyyy", {
+      date: format(new Date(transaction.created_at), 'd MMM yyyy', {
         locale: id,
       }),
-      collector_name: transaction.created?.name || "Unknown",
+      collector_name: transaction.created?.name || 'Unknown',
       store_status: transaction.is_open
-        ? "Buka"
-        : ("Tutup" as "Buka" | "Tutup"),
+        ? 'Buka'
+        : ('Tutup' as 'Buka' | 'Tutup'),
       amount: transaction.deposit_amount,
       id: transaction.id,
     }));
@@ -125,9 +125,9 @@ const HistoryTransactionDialog: React.FC<HistoryTransactionDialogProps> = ({
                 <div className="flex items-center justify-between">
                   <span className="text-gray-600">Target Retribusi Harian</span>
                   <span className="font-medium">
-                    {new Intl.NumberFormat("id-ID", {
-                      style: "currency",
-                      currency: "IDR",
+                    {new Intl.NumberFormat('id-ID', {
+                      style: 'currency',
+                      currency: 'IDR',
                       minimumFractionDigits: 0,
                       maximumFractionDigits: 0,
                     }).format(store?.expected_deposit_amount || 0)}
@@ -135,7 +135,7 @@ const HistoryTransactionDialog: React.FC<HistoryTransactionDialogProps> = ({
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-gray-600">Status</span>
-                  {store?.status === "active" ? (
+                  {store?.status === 'active' ? (
                     <span className="inline-flex items-center px-2 py-0.5 rounded-md text-sm font-medium bg-green-50 text-green-600 border border-green-200">
                       <CheckCircle2 className="w-4 h-4 mr-1 stroke-2" />
                       Aktif
@@ -191,7 +191,7 @@ const HistoryTransactionDialog: React.FC<HistoryTransactionDialogProps> = ({
                           <span className="text-gray-600">Status Toko</span>
                           <div className="flex items-center">
                             <span
-                              className={`mr-2 w-2 h-2 rounded-full ${transaction.store_status === "Buka" ? "bg-green-500" : "bg-red-500"}`}
+                              className={`mr-2 w-2 h-2 rounded-full ${transaction.store_status === 'Buka' ? 'bg-green-500' : 'bg-red-500'}`}
                             ></span>
                             <span className="font-medium">
                               {transaction.store_status}
@@ -201,9 +201,9 @@ const HistoryTransactionDialog: React.FC<HistoryTransactionDialogProps> = ({
                         <div className="flex items-center justify-between mt-2">
                           <span className="text-gray-600">Nominal Setoran</span>
                           <span className="font-medium">
-                            {new Intl.NumberFormat("id-ID", {
-                              style: "currency",
-                              currency: "IDR",
+                            {new Intl.NumberFormat('id-ID', {
+                              style: 'currency',
+                              currency: 'IDR',
                               minimumFractionDigits: 0,
                               maximumFractionDigits: 0,
                             }).format(transaction.amount)}
