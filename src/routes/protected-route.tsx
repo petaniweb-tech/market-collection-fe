@@ -17,7 +17,7 @@
 
 // // //   // if (!isAuthenticated) {
 // // //   //   navigate({
-// // //   //     to: "/login",
+// // //   //     to: "/",
 // // //   //   });
 // // //   //   return null;
 // // //   // }
@@ -25,7 +25,7 @@
 // // //   const { isAuthenticated } = useAuth();
 
 // // //   if (!isAuthenticated) {
-// // //     return <Navigate to="/login" />;
+// // //     return <Navigate to="/" />;
 // // //   }
 
 // // //   return <>{children}</>;
@@ -57,7 +57,7 @@
 
 //   // Redirect to login if not authenticated
 //   if (!isAuthenticated) {
-//     return <Navigate to="/login" />;
+//     return <Navigate to="/" />;
 //   }
 
 //   return <>{children}</>;
@@ -124,7 +124,7 @@ export function ProtectedLayoutBase({
 
   // Redirect to login if not authenticated
   if (!isAuthenticated || !token) {
-    return <Navigate to="/login" />;
+    return <Navigate to="/" />;
   }
 
   // Check role-based access if requiredRoles is provided

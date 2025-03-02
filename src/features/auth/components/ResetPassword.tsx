@@ -89,7 +89,7 @@ const ResetPassword: React.FC = () => {
       });
 
       // Navigate to login page
-      navigate({ to: "/login" });
+      navigate({ to: "/" });
     } catch (error: any) {
       toast({
         title: "Gagal mengubah password",
@@ -101,7 +101,7 @@ const ResetPassword: React.FC = () => {
   };
 
   const handleGoBack = () => {
-    navigate({ to: "/login" });
+    navigate({ to: "/" });
   };
 
   const togglePasswordVisibility = () => {

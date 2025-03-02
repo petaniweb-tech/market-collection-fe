@@ -8,7 +8,7 @@ import ResetPasswordConfirmation from "../components/ResetPasswordConfirmation";
 
 export const loginRoute = createRoute({
   getParentRoute: () => rootRoute,
-  path: "/login",
+  path: "/",
   component: LoginForm,
 });
 export const verifyRoute = createRoute({

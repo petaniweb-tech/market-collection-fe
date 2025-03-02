@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Calendar, CheckCircle2, XCircle } from "lucide-react";
+import { CheckCircle2, XCircle } from "lucide-react";
 import { format, isToday } from "date-fns";
 import { id } from "date-fns/locale";
 
@@ -11,14 +11,11 @@ import {
   DialogTitle,
   DialogDescription,
 } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { Store } from "../../types/store.types";
-import { DatePickerDialog, EnhancedDatePicker } from "../datepicker/DatePicker";
+import { EnhancedDatePicker } from "../datepicker/DatePicker";
 import { useStore } from "../../hooks/useStore";
 import { useHistoricalTransactions } from "../../hooks/useCollectorDeposit";
-import { HistoryTransaction } from "../../types/collectorDeposit.types";
+import { HistoryTransaction } from "../../types/historyTransaction.types";
 
 interface HistoryTransactionDialogProps {
   storeId: string;
