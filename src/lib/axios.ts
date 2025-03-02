@@ -87,7 +87,7 @@ axiosInstance.interceptors.response.use(
         localStorage.removeItem("refresh_token");
         localStorage.removeItem("expires_at");
         localStorage.removeItem("user");
-        window.location.href = "/login";
+        window.location.href = "/";
         return Promise.reject(error);
       }
 
@@ -144,7 +144,7 @@ axiosInstance.interceptors.response.use(
           localStorage.removeItem("refresh_token");
           localStorage.removeItem("expires_at");
           localStorage.removeItem("user");
-          window.location.href = "/login";
+          window.location.href = "/";
 
           return Promise.reject(refreshError);
         } finally {

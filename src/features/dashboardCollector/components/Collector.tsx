@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+// import { Card, CardContent } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import CollectorForm from "./CollectorForm";
 import { useState } from "react";
@@ -12,7 +12,7 @@ import {
   useCollectorDeposits,
   useCreateCollectorDeposit,
 } from "../hooks/useCollector";
-import { format } from "date-fns";
+// import { format } from "date-fns";
 import DepositCard from "./card/DepositCard";
 import { usePermissions } from "@/hooks/usePermission";
 import Unauthorized from "@/components/common/unauthorize/Unauthorize";
@@ -21,8 +21,8 @@ export default function Collector() {
   const navigate = useNavigate();
   const { user, isAuthenticated } = useAuth();
   const { isCollector } = usePermissions();
-  const today = new Date();
-  const formattedDate = format(today, "dd MMM yyyy");
+  // const today = new Date();
+  // const formattedDate = format(today, "dd MMM yyyy");
 
   // State for modals
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -36,8 +36,7 @@ export default function Collector() {
   });
 
   // Create collector deposit mutation
-  const { mutate: createDeposit, isPending: isCreating } =
-    useCreateCollectorDeposit();
+  const { mutate: createDeposit } = useCreateCollectorDeposit();
 
   const getInitials = (name: string) => {
     return name
@@ -70,12 +69,12 @@ export default function Collector() {
   const deposits = collectorDepositsData?.records || [];
 
   // Calculate progress
-  const collectedCount = deposits.length;
-  const totalTarget = 56; // This should come from your API if possible
+  // const collectedCount = deposits.length;
+  // const totalTarget = 56; // This should come from your API if possible
 
   // Redirect to login if not authenticated
   if (!isAuthenticated) {
-    return <Navigate to="/login" />;
+    return <Navigate to="/" />;
   }
 
   // Show unauthorized page if user is not an admin

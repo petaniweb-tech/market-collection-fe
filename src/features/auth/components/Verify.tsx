@@ -66,7 +66,7 @@ const Verify = () => {
   }, [token, verifyEmail])
   
   const redirectToLogin = () => {
-    navigate({ to: '/login' })
+    navigate({ to: "/" });
   }
 
   return (

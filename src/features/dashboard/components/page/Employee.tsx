@@ -216,7 +216,7 @@ const Employee = () => {
 
   // Redirect to login if not authenticated
   if (!isAuthenticated) {
-    return <Navigate to="/login" />;
+    return <Navigate to="/" />;
   }
 
   // Show unauthorized page if user is not an admin

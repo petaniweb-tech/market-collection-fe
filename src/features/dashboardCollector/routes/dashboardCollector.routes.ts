@@ -5,7 +5,7 @@ import DepositConfirmation from "../components/DepositConfirmation";
 
 // export const loginCollectorRoute = createRoute({
 //   getParentRoute: () => rootRoute,
-//   path: "/collector/login",
+//   path: "/collector/",
 //   component: LoginMobileForm,
 // });
 
