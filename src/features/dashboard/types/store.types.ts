@@ -1,3 +1,4 @@
+import { Location } from "./location.types";
 
 export interface Store {
     id: string;

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import {
   ColumnDef,
   flexRender,
@@ -6,7 +7,7 @@ import {
 } from "@tanstack/react-table";
 import { Button } from "@/components/ui/button";
 import { SkeletonRow } from "../page/SkeletonRow";
-import type { Store } from "../../types/income.types";
+
 import {
   ChevronLeft,
   ChevronRight,
@@ -14,6 +15,11 @@ import {
   MoreHorizontal,
   Trash2,
   Building2,
+  FileClock,
+  CheckCircle2,
+  XCircle,
+  Store as StoreIcon,
+  Banknote,
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -24,12 +30,15 @@ import {
 import { useState } from "react";
 import { Sheet } from "@/components/ui/sheet";
 import EditStoreForm from "../form/EditStoreForm";
+import HistoryTransactionDialog from "../dialog/HistoryTransactionDialog";
+import { Store } from "../../types/store.types";
 
 interface StoreTableProps {
   data: Store[];
   isLoading: boolean;
   isSubmitting: boolean;
   onDelete: (id: string) => void;
+  onReactivate: (id: string) => void;
   currentPage: number;
   totalPages: number;
   onPageChange: (page: number) => void;
@@ -41,6 +50,7 @@ const StoreTable = ({
   isLoading,
   isSubmitting,
   onDelete,
+  onReactivate,
   currentPage,
   totalPages,
   onPageChange,
@@ -49,6 +59,10 @@ const StoreTable = ({
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [storeToEdit, setStoreToEdit] = useState<string | null>(null);
   const [isEditSubmitting, setIsEditSubmitting] = useState(false);
+  const [historyModalOpen, setHistoryModalOpen] = useState(false);
+  const [storeToViewHistory, setStoreToViewHistory] = useState<string | null>(
+    null
+  );
 
   // Calculate start index for row numbering
   const startIndex = (currentPage - 1) * 10; // Assuming 10 items per page
@@ -58,11 +72,16 @@ const StoreTable = ({
     setEditModalOpen(true);
   };
 
-  const handleDelete = (id: string) => {
-    onDelete(id);
-    // setStoreToDelete(id);
-    // setDeleteModalOpen(true);
+  const handleViewHistory = (id: string) => {
+    setStoreToViewHistory(id);
+    setHistoryModalOpen(true);
   };
+
+  // const handleDelete = (id: string) => {
+  // onDelete(id);
+  // setStoreToDelete(id);
+  // setDeleteModalOpen(true);
+  // };
 
   // const confirmDelete = () => {
   //   if (storeToDelete) {
@@ -81,6 +100,16 @@ const StoreTable = ({
     {
       accessorKey: "name",
       header: "NAMA LAPAK",
+      cell: ({ row }) => {
+        return (
+          <div className="flex items-center gap-2">
+            <StoreIcon className="w-5 h-5 text-gray-500" />
+            <span className="text-gray-700">
+              {row.original.name}
+            </span>
+          </div>
+        );
+      },
     },
     {
       accessorKey: "location.name",
@@ -98,40 +127,47 @@ const StoreTable = ({
     },
     {
       accessorKey: "expected_deposit_amount",
-      header: "NOMINAL RETRIBUSI",
+      header: "TARGET RETRIBUSI HARIAN",
       cell: ({ row }) => {
         const amount = row.getValue("expected_deposit_amount") as number;
-        return new Intl.NumberFormat("id-ID", {
+        const formatAmount = new Intl.NumberFormat("id-ID", {
           style: "currency",
           currency: "IDR",
           minimumFractionDigits: 0,
           maximumFractionDigits: 0,
         }).format(amount);
+
+        return (
+          <div className="flex items-center gap-2">
+            <Banknote className="w-5 h-5 text-[#EE3701]" />
+            <span className="text-gray-700">
+              {formatAmount}
+            </span>
+          </div>
+        );
       },
     },
-    // {
-    //   accessorKey: "status",
-    //   header: "STATUS",
-    //   cell: ({ row }) => {
-    //     const isActive = row.getValue("status") as boolean;
-
-    //     if (isActive) {
-    //       return (
-    //         <span className="inline-flex items-center px-2 py-0.5 rounded-md text-sm font-medium bg-green-50 text-green-600 border border-green-200">
-    //           <CheckCircle2 className="w-4 h-4 mr-1 stroke-2" />
-    //           Aktif
-    //         </span>
-    //       );
-    //     } else {
-    //       return (
-    //         <span className="inline-flex items-center px-2 py-0.5 rounded-md text-sm font-medium bg-red-50 text-red-600 border border-red-200">
-    //           <XCircle className="w-4 h-4 mr-1 stroke-2" />
-    //           Nonaktif
-    //         </span>
-    //       );
-    //     }
-    //   },
-    // },
+    {
+      accessorKey: "status",
+      header: "Status",
+      cell: ({ row }) => {
+        if (row.getValue("status") == "active") {
+          return (
+            <span className="inline-flex items-center px-2 py-0.5 rounded-md text-sm font-medium bg-green-50 text-green-600 border border-green-200">
+              <CheckCircle2 className="w-4 h-4 mr-1 stroke-2" />
+              Aktif
+            </span>
+          );
+        } else {
+          return (
+            <span className="inline-flex items-center px-2 py-0.5 rounded-md text-sm font-medium bg-red-50 text-red-600 border border-red-200">
+              <XCircle className="w-4 h-4 mr-1 stroke-2" />
+              Nonaktif
+            </span>
+          );
+        }
+      },
+    },
     {
       id: "actions",
       cell: ({ row }) => {
@@ -148,19 +184,43 @@ const StoreTable = ({
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-32">
                 <DropdownMenuItem
+                  onClick={() => handleViewHistory(store.id)}
+                  className="cursor-pointer"
+                >
+                  <FileClock className="w-4 h-4 mr-2" />
+                  Riwayat Transaksi
+                </DropdownMenuItem>
+                <DropdownMenuItem
                   onClick={() => handleEdit(store.id)}
                   className="cursor-pointer"
                 >
                   <Edit className="w-4 h-4 mr-2" />
                   Ubah
                 </DropdownMenuItem>
-                <DropdownMenuItem
+                {/* <DropdownMenuItem
                   className="text-red-600 cursor-pointer"
                   onClick={() => handleDelete(store.id)}
                 >
                   <Trash2 className="w-4 h-4 mr-2 text-red-600" />
                   Hapus
-                </DropdownMenuItem>
+                </DropdownMenuItem> */}
+                {store.status == 'active' ? (
+                  <DropdownMenuItem
+                    className="text-red-600 cursor-pointer"
+                    onClick={() => onDelete(store.id)}
+                  >
+                    <XCircle className="w-4 h-4 mr-2 text-red-600" />
+                    Nonaktif
+                  </DropdownMenuItem>
+                ) : (
+                  <DropdownMenuItem
+                    className="text-green-600 cursor-pointer"
+                    onClick={() => onReactivate(store.id)}
+                  >
+                    <CheckCircle2 className="w-4 h-4 mr-2 text-green-600" />
+                    Aktifkan
+                  </DropdownMenuItem>
+                )}
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
@@ -356,6 +416,15 @@ const StoreTable = ({
           />
         )}
       </Sheet>
+
+      {/* History Transaction Dialog */}
+      {storeToViewHistory && (
+        <HistoryTransactionDialog
+          storeId={storeToViewHistory}
+          open={historyModalOpen}
+          onOpenChange={setHistoryModalOpen}
+        />
+      )}
     </>
   );
 };

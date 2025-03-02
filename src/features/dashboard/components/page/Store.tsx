@@ -1,15 +1,20 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 
 import { Sheet, SheetTrigger } from "@/components/ui/sheet";
-import { useStores, useDeleteStore } from "../../hooks/useStore";
+import {
+  useStores,
+  useDeleteStore,
+  useReactivateMerchant,
+} from "../../hooks/useStore";
 import FormStore from "../form/FormStore";
 import StoreTable from "../table/StoreTable";
 import { Input } from "@/components/ui/input";
 import { Search } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { ConfirmationDeleteDialog } from "../dialog/ConfirmationDeleteDialog";
+// import { ConfirmationDeleteDialog } from "../dialog/ConfirmationDeleteDialog";
 import LocationComboBox from "../combobox/LocationComboBox";
+import ConfirmationStoreDialog from "../dialog/ConfirmationStoreDialog";
 
 const Store = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -21,6 +26,13 @@ const Store = () => {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [storeToDelete, setStoreToDelete] = useState<string | null>(null);
   const [selectedLocation, setSelectedLocation] = useState("");
+  const [statusDialogOpen, setStatusDialogOpen] = useState(false);
+  const [selectedStore, setSelectedStore] = useState<{
+    id: string;
+    status: boolean;
+  } | null>(null);
+  const [filterColumns, setFilterColumns] = useState<string[]>([]);
+  const [filterValues, setFilterValues] = useState<string[]>([]);
 
   const { toast } = useToast();
 
@@ -35,9 +47,13 @@ const Store = () => {
     sort: "name",
     order: sortOrder,
     search: searchTerm || undefined,
+    filter_column: filterColumns.length > 0 ? filterColumns : null,
+    filter_value: filterValues.length > 0 ? filterValues : null,
   });
 
   const { mutateAsync: deleteStore } = useDeleteStore();
+  const { mutateAsync: reactivateStore, isSuccess: isSuccessReactivate } =
+    useReactivateMerchant();
 
   const stores = storeData?.records || [];
   const totalPages = storeData?.totalPage || 1;
@@ -48,6 +64,11 @@ const Store = () => {
       refetch();
     }
   }, [isOpen, refetch]);
+
+  // Update filters when tab/role changes
+  useEffect(() => {
+    updateFilters();
+  }, [selectedLocation]);
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(e.target.value);
@@ -62,9 +83,30 @@ const Store = () => {
     setPage(newPage);
   };
 
-  const handleDeleteRequest = (id: string) => {
-    setStoreToDelete(id);
-    setShowDeleteModal(true);
+  const updateFilters = () => {
+    const newColumns: string[] = [];
+    const newValues: string[] = [];
+
+    // Add location filter if selected
+    if (selectedLocation) {
+      newColumns.push("location");
+      newValues.push(selectedLocation);
+    }
+
+    setFilterColumns(newColumns);
+    setFilterValues(newValues);
+  };
+
+  const handleDelete = (id: string) => {
+    setSelectedStore({ id, status: true });
+    setStatusDialogOpen(true);
+
+    console.log("Selected store to delete:", id);
+  };
+
+  const handleReactivate = (id: string) => {
+    setSelectedStore({ id, status: false });
+    setStatusDialogOpen(true);
   };
 
   const handleLocationChange = (value: string) => {
@@ -73,28 +115,60 @@ const Store = () => {
     setPage(1); // Reset to first page when location changes
   };
 
-  const handleDeleteConfirm = async () => {
-    if (!storeToDelete) return;
+  const handleStatusChange = async () => {
+    if (!selectedStore) return;
 
     try {
-      await deleteStore(storeToDelete);
-      toast({
-        title: "Berhasil menghapus lapak",
-        description: "Data lapak telah dihapus dari sistem",
-      });
-      refetch();
+      if (selectedStore.status) {
+        await deleteStore(selectedStore.id);
+        toast({
+          title: "Berhasil menonaktifkan lapak",
+          description: "Status lapak telah dinonaktifkan",
+        });
+      } else {
+        await reactivateStore(selectedStore.id);
+        toast({
+          title: "Berhasil mengaktifkan lapak",
+          description: "Status lapak telah diaktifkan",
+        });
+      }
+      await refetch();
     } catch (error) {
+      console.error("Failed to update lapak status:", error);
       toast({
-        title: "Gagal menghapus lapak",
-        description: "Terjadi kesalahan saat menghapus data lapak",
+        title: "Gagal mengubah status lapak",
+        description:
+          error?.message || "Terjadi kesalahan saat mengubah status lapak",
         variant: "destructive",
       });
-      console.error("Delete store error:", error);
     } finally {
-      setShowDeleteModal(false);
-      setStoreToDelete(null);
+      setStatusDialogOpen(false);
+      setSelectedStore(null);
     }
   };
+
+  // const handleDeleteConfirm = async () => {
+  //   if (!storeToDelete) return;
+
+  //   try {
+  //     await deleteStore(storeToDelete);
+  //     toast({
+  //       title: "Berhasil menghapus lapak",
+  //       description: "Data lapak telah dihapus dari sistem",
+  //     });
+  //     refetch();
+  //   } catch (error) {
+  //     toast({
+  //       title: "Gagal menghapus lapak",
+  //       description: "Terjadi kesalahan saat menghapus data lapak",
+  //       variant: "destructive",
+  //     });
+  //     console.error("Delete store error:", error);
+  //   } finally {
+  //     setShowDeleteModal(false);
+  //     setStoreToDelete(null);
+  //   }
+  // };
 
   return (
     <div className="h-full min-h-screen px-16 py-14 bg-gradient-to-b from-gradients-background-from to-gradients-background-to">
@@ -154,19 +228,27 @@ const Store = () => {
         data={stores}
         isLoading={isLoading}
         isSubmitting={isSubmitting}
-        onDelete={handleDeleteRequest}
+        onDelete={handleDelete}
+        onReactivate={handleReactivate}
         currentPage={page}
         totalPages={totalPages}
         onPageChange={handlePageChange}
         onEditComplete={() => refetch()}
       />
 
-      <ConfirmationDeleteDialog
+      {/* <ConfirmationDeleteDialog
         open={showDeleteModal}
         onOpenChange={setShowDeleteModal}
         onConfirm={handleDeleteConfirm}
         title="Hapus Lapak"
         description="Apakah anda yakin ingin menghapus data lapak ini? Tindakan ini tidak dapat dibatalkan."
+      /> */}
+
+      <ConfirmationStoreDialog
+        open={statusDialogOpen}
+        onOpenChange={setStatusDialogOpen}
+        onConfirm={handleStatusChange}
+        variant={selectedStore?.status ? "deactivate" : "activate"}
       />
     </div>
   );

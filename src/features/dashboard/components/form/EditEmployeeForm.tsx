@@ -28,6 +28,7 @@ import { useEffect } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import PersonSquare from "@/assets/icon/ic_person_square.svg";
 import LocationComboBox from "../combobox/LocationComboBox";
+import { usePermissions } from "@/hooks/usePermission";
 
 const formSchema = z.object({
   name: z.string().min(2, { message: "Nama harus diisi" }),
@@ -57,6 +58,7 @@ const EditFormEmployee = ({
   const updateEmployee = useUpdateEmployee();
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const { isAdmin } = usePermissions();
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),

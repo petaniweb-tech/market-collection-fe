@@ -19,6 +19,8 @@ export function useStores(params?: {
   sort?: string;
   order?: "asc" | "desc";
   search?: string;
+  filter_column?: string[] | null;
+  filter_value?: string[]  | null;
 }) {
   const shouldFetch = !params?.search || params.search.length >= 3;
   return useQueryWithConfig(
@@ -82,4 +84,16 @@ export function useDeleteStore() {
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.stores });
     },
   });
+}
+
+// reactivate store
+export function useReactivateMerchant() {
+  return useMutationWithConfig(
+    (id: string) => storeService.reactivateMerchant(id),
+    {
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: QUERY_KEYS.stores });
+      },
+    }
+  );
 }

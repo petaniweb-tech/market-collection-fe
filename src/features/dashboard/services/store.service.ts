@@ -6,6 +6,7 @@ import { CreateStoreDTO, Store, UpdateStoreDTO } from "../types/store.types";
 const STORE_ENDPOINTS = {
   BASE: "/api/merchants",
   DETAIL: (id: string) => `/api/merchants/${id}`,
+  REACTIVATE: (id: string) => `/api/merchants/re-active/${id}`,
 };
 
 // Service for store management
@@ -17,6 +18,8 @@ export const storeService = {
     sort?: string;
     order?: "asc" | "desc";
     search?: string;
+    filter_column?: string[]  | null;
+    filter_value?: string[]  | null;
   }): Promise<PaginatedResponse<Store>> => {
     const response = await axiosInstance.get<
       ApiResponse<PaginatedResponse<Store>>
@@ -43,10 +46,7 @@ export const storeService = {
   },
 
   // Update an existing store
-  updateStore: async (
-    id: string,
-    data: UpdateStoreDTO
-  ): Promise<Store> => {
+  updateStore: async (id: string, data: UpdateStoreDTO): Promise<Store> => {
     const response = await axiosInstance.put<ApiResponse<Store>>(
       STORE_ENDPOINTS.DETAIL(id),
       data
@@ -59,6 +59,14 @@ export const storeService = {
     const response = await axiosInstance.delete<
       ApiResponse<{ success: boolean }>
     >(STORE_ENDPOINTS.DETAIL(id));
+    return response.data.success;
+  },
+
+  reactivateMerchant: async (id: string): Promise<boolean> => {
+    const response = await axiosInstance.put<ApiResponse<{ success: boolean }>>(
+      STORE_ENDPOINTS.REACTIVATE(id)
+    );
+
     return response.data.success;
   },
 };

@@ -5,12 +5,21 @@ import {
 } from "../../../hooks/useQueryWithConfig";
 import { queryClient } from "../../../lib/react-query";
 import { keepPreviousData } from "@tanstack/react-query";
-import { collectorDepositService } from "../services/collectorDeposit.service";
-import { CreateCollectorDepositDTO, UpdateCollectorDepositDTO } from "../types/collectorDeposit.types";
+import {
+  collectorDepositService,
+} from "../services/collectorDeposit.service";
+import {
+  CreateCollectorDepositDTO,
+  UpdateCollectorDepositDTO,
+} from "../types/collectorDeposit.types";
 
 export const QUERY_KEYS = {
   collectorDeposits: ["collectorDeposits"] as const,
   collectorDeposit: (id: string) => ["collectorDeposit", id] as const,
+  historicalTransactions: (id: string, date?: string) =>
+    date
+      ? (["collector-deposits", "historical", id, date] as const)
+      : (["collector-deposits", "historical", id] as const),
 };
 
 // Get collector deposits with pagination and filters
@@ -79,6 +88,19 @@ export function useUpdateCollectorDeposit() {
           queryKey: QUERY_KEYS.collectorDeposit(variables.id),
         });
       },
+    }
+  );
+}
+
+// Get historical transactions for a collector deposit
+export function useHistoricalTransactions(id: string, date?: string) {
+  return useQueryWithConfig(
+    [...QUERY_KEYS.historicalTransactions(id, date)], // Spread the readonly tuple into a new array
+    () => collectorDepositService.getHistoricalTransactions(id, { date }),
+    {
+      refetchOnWindowFocus: false,
+      staleTime: 60000, // 1 minute
+      enabled: !!id, // Only run query if ID is provided
     }
   );
 }

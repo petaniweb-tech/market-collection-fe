@@ -7,11 +7,13 @@ import {
   CreateCollectorDepositDTO,
   UpdateCollectorDepositDTO,
 } from "../types/collectorDeposit.types";
+import { HistoryTransaction } from "../types/historyTransaction.types";
 
 // Endpoints for collector deposits
 const COLLECTOR_DEPOSIT_ENDPOINTS = {
   BASE: "/api/collector-deposits",
   DETAIL: (id: string) => `/api/collector-deposits/${id}`,
+  HISTORICAL: (id: string) => `/api/collector-deposits/historical/${id}`,
 };
 
 // Service for collector deposit management
@@ -60,6 +62,20 @@ export const collectorDepositService = {
     const response = await axiosInstance.put<ApiResponse<CollectorDeposit>>(
       COLLECTOR_DEPOSIT_ENDPOINTS.DETAIL(id),
       data
+    );
+    return response.data.data;
+  },
+
+  // Get historical transactions for a collector deposit
+  getHistoricalTransactions: async (
+    id: string,
+    params?: {
+      date?: string;
+    }
+  ): Promise<HistoryTransaction[]> => {
+    const response = await axiosInstance.get<ApiResponse<HistoryTransaction[]>>(
+      COLLECTOR_DEPOSIT_ENDPOINTS.HISTORICAL(id),
+      { params }
     );
     return response.data.data;
   },
