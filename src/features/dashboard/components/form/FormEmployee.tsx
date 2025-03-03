@@ -1,22 +1,22 @@
-import { zodResolver } from "@hookform/resolvers/zod";
-import * as z from "zod";
-import { Button } from "@/components/ui/button";
+import { zodResolver } from '@hookform/resolvers/zod';
+import * as z from 'zod';
+import { Button } from '@/components/ui/button';
 
-import { Input } from "@/components/ui/input";
+import { Input } from '@/components/ui/input';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import { SheetContent } from "@/components/ui/sheet";
-import { UserRound } from "lucide-react";
-import { useCreateEmployee } from "../../hooks/useEmployee";
+} from '@/components/ui/select';
+import { SheetContent } from '@/components/ui/sheet';
+import { UserRound } from 'lucide-react';
+import { useCreateEmployee } from '../../hooks/useEmployee';
 
-import type { CreateEmployeeDTO } from "../../types/employee.types";
-import { useToast } from "@/hooks/use-toast";
-import { useForm } from "react-hook-form";
+import type { CreateEmployeeDTO } from '../../types/employee.types';
+import { useToast } from '@/hooks/use-toast';
+import { useForm } from 'react-hook-form';
 import {
   Form,
   FormControl,
@@ -25,27 +25,27 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form";
-import PersonSquare from "@/assets/icon/ic_person_square.svg";
-import LocationComboBox from "../combobox/LocationComboBox";
+} from '@/components/ui/form';
+import PersonSquare from '@/assets/icon/ic_person_square.svg';
+import LocationComboBox from '../combobox/LocationComboBox';
 
 // Form validation schema
 const formSchema = z.object({
-  name: z.string().min(2, { message: "Nama harus diisi" }),
-  role: z.enum(["collector", "manager", "supervisor", "admin"], {
-    required_error: "Pilih role pegawai",
+  name: z.string().min(2, { message: 'Nama harus diisi' }),
+  role: z.enum(['collector', 'manager', 'supervisor', 'admin'], {
+    required_error: 'Pilih role lapak',
   }),
   phone: z
     .string()
-    .min(1, { message: "Nomor HP harus diisi" })
+    .min(1, { message: 'Nomor HP harus diisi' })
     .regex(/^\+62[1-9][0-9]{8,11}$/, {
-      message: "Nomor HP harus diawali +62 dan maksimal 14 karakter",
+      message: 'Nomor HP harus diawali +62 dan maksimal 14 karakter',
     })
     .refine((val) => val.length <= 14, {
-      message: "Nomor HP tidak boleh lebih dari 14 karakter",
+      message: 'Nomor HP tidak boleh lebih dari 14 karakter',
     }),
-  email: z.string().email({ message: "Email tidak valid" }),
-  location: z.string().min(1, { message: "Lokasi harus dipilih" }),
+  email: z.string().email({ message: 'Email tidak valid' }),
+  location: z.string().min(1, { message: 'Lokasi harus dipilih' }),
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -63,11 +63,11 @@ const FormEmployee = ({ onOpenChange, setSubmitting }: FormEmployeeProps) => {
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      name: "",
+      name: '',
       role: undefined,
-      phone: "",
-      email: "",
-      location: "",
+      phone: '',
+      email: '',
+      location: '',
     },
   });
 
@@ -87,20 +87,40 @@ const FormEmployee = ({ onOpenChange, setSubmitting }: FormEmployeeProps) => {
       await createEmployee.mutateAsync(employeeData);
 
       toast({
-        title: "Berhasil menambahkan pegawai",
-        description: "Undangan telah dikirim ke email pegawai",
+        title: 'Berhasil menambahkan lapak',
+        description: 'Undangan telah dikirim ke email lapak',
         // variant: "success",
       });
 
       form.reset();
       onOpenChange(false);
-    } catch (error) {
-      console.error("Failed to create employee:", error);
-      toast({
-        title: "Gagal menambahkan pegawai",
-        description: "Terjadi kesalahan saat menambahkan pegawai baru",
-        variant: "destructive",
-      });
+    } catch (error: any) {
+      if (error?.statusCode === 400) {
+        toast({
+          title: 'Gagal menambahkan lapak',
+          description: 'Input Error: Cek Kembali Inputan Anda',
+          variant: 'destructive',
+        });
+      } else if (error?.statusCode === 500) {
+        toast({
+          title: 'Gagal menambahkan lapak',
+          description: 'Server Error: Hubungi Admin',
+          variant: 'destructive',
+        });
+      } else if (error?.statusCode === 401 || error?.statusCode === 404) {
+        toast({
+          title: 'Anda tidak memiliki akses ke halaman ini',
+          description: 'Server Error: Hubungi Admin',
+          variant: 'destructive',
+        });
+      } else {
+        console.error('Failed to create employee:', error);
+        toast({
+          title: 'Gagal menambahkan lapak',
+          description: 'Terjadi kesalahan saat menambahkan lapak baru',
+          variant: 'destructive',
+        });
+      }
     } finally {
       setSubmitting(false);
     }
@@ -114,8 +134,10 @@ const FormEmployee = ({ onOpenChange, setSubmitting }: FormEmployeeProps) => {
           <img src={PersonSquare} alt="Profile" className="mb-6" />
 
           <div className="mb-7">
-            <h2 className="text-xl font-semibold">Tambah pegawai baru</h2>
-            <div className="font-normal text-[#909090]">Isi data pegawai baru untuk ditambahkan ke sistem</div>
+            <h2 className="text-xl font-semibold">Tambah lapak baru</h2>
+            <div className="font-normal text-[#909090]">
+              Isi data lapak baru untuk ditambahkan ke sistem
+            </div>
             <div className="h-px mt-4 bg-gray-200"></div>
           </div>
         </div>
@@ -180,9 +202,9 @@ const FormEmployee = ({ onOpenChange, setSubmitting }: FormEmployeeProps) => {
               name="name"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Nama Pegawai</FormLabel>
+                  <FormLabel>Nama lapak</FormLabel>
                   <FormControl>
-                    <Input placeholder="Masukkan Nama Pegawai" {...field} />
+                    <Input placeholder="Masukkan Nama lapak" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -254,7 +276,7 @@ const FormEmployee = ({ onOpenChange, setSubmitting }: FormEmployeeProps) => {
                 className="bg-orange-500 rounded-full hover:bg-orange-600"
                 disabled={createEmployee.isPending}
               >
-                {createEmployee.isPending ? "Menyimpan..." : "Simpan"}
+                {createEmployee.isPending ? 'Menyimpan...' : 'Simpan'}
               </Button>
             </div>
           </form>

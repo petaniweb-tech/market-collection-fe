@@ -1,14 +1,14 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { zodResolver } from "@hookform/resolvers/zod";
-import * as z from "zod";
-import { useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { SheetContent } from "@/components/ui/sheet";
-import { useCreateStore, useStores } from "../../hooks/useStore";
-import type { CreateStoreDTO } from "../../types/store.types";
-import { useToast } from "@/hooks/use-toast";
-import { useForm } from "react-hook-form";
+import { zodResolver } from '@hookform/resolvers/zod';
+import * as z from 'zod';
+import { useState } from 'react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { SheetContent } from '@/components/ui/sheet';
+import { useCreateStore, useStores } from '../../hooks/useStore';
+import type { CreateStoreDTO } from '../../types/store.types';
+import { useToast } from '@/hooks/use-toast';
+import { useForm } from 'react-hook-form';
 import {
   Form,
   FormControl,
@@ -16,28 +16,28 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form";
-import { Textarea } from "@/components/ui/textarea";
-import LocationComboBox from "../combobox/LocationComboBox";
-import StoreSquare from "@/assets/icon/ic_store_square.svg";
+} from '@/components/ui/form';
+import { Textarea } from '@/components/ui/textarea';
+import LocationComboBox from '../combobox/LocationComboBox';
+import StoreSquare from '@/assets/icon/ic_store_square.svg';
 
 const formatToRupiah = (value: string | number) => {
   const numberValue =
-    typeof value === "string" ? parseInt(value.replace(/[^\d]/g, "")) : value;
-  return new Intl.NumberFormat("id-ID").format(numberValue || 0);
+    typeof value === 'string' ? parseInt(value.replace(/[^\d]/g, '')) : value;
+  return new Intl.NumberFormat('id-ID').format(numberValue || 0);
 };
 
-const stripNonDigits = (value: string) => value.replace(/[^\d]/g, "");
+const stripNonDigits = (value: string) => value.replace(/[^\d]/g, '');
 
 // Form validation schema
 const formSchema = z.object({
-  store_name: z.string().min(2, { message: "Nama lapak harus diisi" }),
-  location: z.string().min(2, { message: "Lokasi harus diisi" }),
+  store_name: z.string().min(2, { message: 'Nama lapak harus diisi' }),
+  location: z.string().min(2, { message: 'Lokasi harus diisi' }),
   retribution: z
     .string()
-    .min(1, { message: "Nominal retribusi harus diisi" })
-    .regex(/^\d+$/, { message: "Nominal retribusi harus berupa angka" })
-    .transform((val) => parseInt(stripNonDigits(val) || "0", 10)), // Convert to number here
+    .min(1, { message: 'Nominal retribusi harus diisi' })
+    .regex(/^\d+$/, { message: 'Nominal retribusi harus berupa angka' })
+    .transform((val) => parseInt(stripNonDigits(val) || '0', 10)), // Convert to number here
   desc: z.string().optional(),
 });
 
@@ -56,16 +56,11 @@ const FormStore = ({ onOpenChange, setSubmitting }: FormStoreProps) => {
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
-    defaultValues: {
-      store_name: "",
-      location: "",
-      retribution: 0,
-      desc: "",
-    },
+    defaultValues: { store_name: '', location: '', retribution: 0, desc: '' },
   });
 
   // Track the display value for the retribution field
-  const [retributionDisplay, setRetributionDisplay] = useState("");
+  const [retributionDisplay, setRetributionDisplay] = useState('');
 
   const onSubmit = async (values: FormValues) => {
     try {
@@ -75,7 +70,7 @@ const FormStore = ({ onOpenChange, setSubmitting }: FormStoreProps) => {
         name: values.store_name,
         location_id: values.location,
         expected_deposit_amount: values.retribution, // Will be a number after transform
-        status: "active",
+        status: 'active',
         // desc: values.desc || "",
         // created_at: new Date().toISOString(),
         // updated_at: new Date().toISOString(),
@@ -85,20 +80,40 @@ const FormStore = ({ onOpenChange, setSubmitting }: FormStoreProps) => {
       await refetch();
 
       toast({
-        title: "Berhasil menambahkan lapak",
-        description: "Data lapak baru telah tersimpan",
+        title: 'Berhasil menambahkan lapak',
+        description: 'Data lapak baru telah tersimpan',
       });
 
       form.reset();
-      setRetributionDisplay("");
+      setRetributionDisplay('');
       onOpenChange(false);
-    } catch (error) {
-      console.error("Failed to create store:", error);
-      toast({
-        title: "Gagal menambahkan lapak",
-        description: "Terjadi kesalahan saat menambahkan lapak baru",
-        variant: "destructive",
-      });
+    } catch (error: any) {
+      if (error?.statusCode === 400) {
+        toast({
+          title: 'Gagal menambahkan lapak',
+          description: 'Input Error: Cek Kembali Inputan Anda',
+          variant: 'destructive',
+        });
+      } else if (error?.statusCode === 500) {
+        toast({
+          title: 'Gagal menambahkan lapak',
+          description: 'Server Error: Hubungi Admin',
+          variant: 'destructive',
+        });
+      } else if (error?.statusCode === 401 || error?.statusCode === 404) {
+        toast({
+          title: 'Anda tidak memiliki akses ke halaman ini',
+          description: 'Server Error: Hubungi Admin',
+          variant: 'destructive',
+        });
+      } else {
+        console.error('Failed to create employee:', error);
+        toast({
+          title: 'Gagal menambahkan lapak',
+          description: 'Terjadi kesalahan saat menambahkan lapak baru',
+          variant: 'destructive',
+        });
+      }
     } finally {
       setSubmitting(false);
     }
@@ -214,7 +229,7 @@ const FormStore = ({ onOpenChange, setSubmitting }: FormStoreProps) => {
                 className="bg-orange-500 rounded-full hover:bg-orange-600"
                 disabled={createStore.isPending}
               >
-                {createStore.isPending ? "Menyimpan..." : "Simpan"}
+                {createStore.isPending ? 'Menyimpan...' : 'Simpan'}
               </Button>
             </div>
           </form>

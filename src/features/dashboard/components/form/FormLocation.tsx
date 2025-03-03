@@ -1,9 +1,9 @@
-import { zodResolver } from "@hookform/resolvers/zod";
-import * as z from "zod";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { SheetContent } from "@/components/ui/sheet";
-import { useForm } from "react-hook-form";
+import { zodResolver } from '@hookform/resolvers/zod';
+import * as z from 'zod';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { SheetContent } from '@/components/ui/sheet';
+import { useForm } from 'react-hook-form';
 import {
   Form,
   FormControl,
@@ -11,19 +11,19 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form";
-import { useCreateLocation, useLocations } from "../../hooks/useLocation";
-import { useToast } from "@/hooks/use-toast";
-import LocationSquare from "@/assets/icon/ic_location_square.svg";
-import type { CreateLocationDTO } from "../../types/location.types";
-import DistrictComboBox from "@/components/common/comboBox/DistrictComboBox";
-import { Textarea } from "@/components/ui/textarea";
+} from '@/components/ui/form';
+import { useCreateLocation, useLocations } from '../../hooks/useLocation';
+import { useToast } from '@/hooks/use-toast';
+import LocationSquare from '@/assets/icon/ic_location_square.svg';
+import type { CreateLocationDTO } from '../../types/location.types';
+import DistrictComboBox from '@/components/common/comboBox/DistrictComboBox';
+import { Textarea } from '@/components/ui/textarea';
 
 // Form validation schema
 const formSchema = z.object({
-  location_name: z.string().min(2, { message: "Nama lokasi harus diisi" }),
-  desc: z.string().min(1, { message: "Keterangan harus diisi" }),
-  location: z.string().min(1, { message: "Lokasi harus dipilih" }),
+  location_name: z.string().min(2, { message: 'Nama lokasi harus diisi' }),
+  desc: z.string().min(1, { message: 'Keterangan harus diisi' }),
+  location: z.string().min(1, { message: 'Lokasi harus dipilih' }),
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -41,11 +41,7 @@ const FormLocation = ({ onOpenChange, setSubmitting }: FormLocationProps) => {
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
-    defaultValues: {
-      location_name: "",
-      desc: "",
-      location: "",
-    },
+    defaultValues: { location_name: '', desc: '', location: '' },
   });
 
   const onSubmit = async (values: FormValues) => {
@@ -60,24 +56,44 @@ const FormLocation = ({ onOpenChange, setSubmitting }: FormLocationProps) => {
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
       } as unknown as CreateLocationDTO;
-      
+
       await createLocation.mutateAsync(locationData);
       await refetch();
 
       toast({
-        title: "Berhasil menambahkan lokasi",
-        description: "Lokasi baru telah berhasil ditambahkan",
+        title: 'Berhasil menambahkan lokasi',
+        description: 'Lokasi baru telah berhasil ditambahkan',
       });
 
       form.reset();
       onOpenChange(false);
-    } catch (error) {
-      console.error("Failed to create location:", error);
-      toast({
-        title: "Gagal menambahkan lokasi",
-        description: "Terjadi kesalahan saat menambahkan lokasi baru",
-        variant: "destructive",
-      });
+    } catch (error: any) {
+      if (error?.statusCode === 400) {
+        toast({
+          title: 'Gagal menambahkan lokasi',
+          description: 'Input Error: Cek Kembali Inputan Anda',
+          variant: 'destructive',
+        });
+      } else if (error?.statusCode === 500) {
+        toast({
+          title: 'Gagal menambahkan lokasi',
+          description: 'Server Error: Hubungi Admin',
+          variant: 'destructive',
+        });
+      } else if (error?.statusCode === 401 || error?.statusCode === 404) {
+        toast({
+          title: 'Anda tidak memiliki akses ke halaman ini',
+          description: 'Server Error: Hubungi Admin',
+          variant: 'destructive',
+        });
+      } else {
+        console.error('Failed to create employee:', error);
+        toast({
+          title: 'Gagal menambahkan lokasi',
+          description: 'Terjadi kesalahan saat menambahkan lokasi baru',
+          variant: 'destructive',
+        });
+      }
     } finally {
       setSubmitting(false);
     }
@@ -91,7 +107,9 @@ const FormLocation = ({ onOpenChange, setSubmitting }: FormLocationProps) => {
 
           <div className="mb-7">
             <h2 className="text-xl font-semibold">Tambah lokasi baru</h2>
-            <div className="font-normal text-[#909090]">Isi data lokasi baru untuk ditambahkan ke sistem</div>
+            <div className="font-normal text-[#909090]">
+              Isi data lokasi baru untuk ditambahkan ke sistem
+            </div>
             <div className="h-px mt-4 bg-gray-200"></div>
           </div>
         </div>
@@ -162,7 +180,7 @@ const FormLocation = ({ onOpenChange, setSubmitting }: FormLocationProps) => {
                 className="bg-orange-500 rounded-full hover:bg-orange-600"
                 disabled={createLocation.isPending}
               >
-                {createLocation.isPending ? "Menyimpan..." : "Simpan"}
+                {createLocation.isPending ? 'Menyimpan...' : 'Simpan'}
               </Button>
             </div>
           </form>
