@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import {
   ColumnDef,
   flexRender,
@@ -111,7 +112,7 @@ const LocationTable = ({
     },
     {
       accessorKey: "district.name",
-      header: "NAMA KECAMATAN",
+      header: "KECAMATAN",
       cell: ({ row }) => (
         <div className="flex items-center gap-2">
           <MapPin className="w-5 h-5 text-gray-500" />

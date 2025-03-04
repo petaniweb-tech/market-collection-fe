@@ -15,6 +15,7 @@ import {
   ArrowUpDown,
   Building2,
   Store,
+  Banknote,
 } from "lucide-react";
 import { useState } from "react";
 import CheckPercentage from "@/assets/icon/ic_check_percentage.svg";
@@ -46,7 +47,7 @@ const IncomeTable = ({
     },
     {
       accessorKey: "name",
-      header: "Lokasi",
+      header: "Nama Lokasi",
       cell: ({ row }) => (
         <div className="flex items-center gap-2">
           <Building2 className="w-4 h-4 text-gray-500" />
@@ -56,7 +57,7 @@ const IncomeTable = ({
     },
     {
       accessorKey: "merchant_count",
-      header: "Lapak",
+      header: "Jumlah Lapak",
       cell: ({ row }) => {
         return (
           <div className="flex items-center gap-2">
@@ -80,14 +81,22 @@ const IncomeTable = ({
           </div>
         );
       },
-      cell: ({ row }) => (
-        <div>
-          Rp{" "}
-          {row
-            .getValue<number>("total_expected_amount")
-            .toLocaleString("id-ID")}
-        </div>
-      ),
+      cell: ({ row }) => {
+        const amount = row.getValue("total_expected_amount") as number;
+        const formatAmount = new Intl.NumberFormat("id-ID", {
+          style: "currency",
+          currency: "IDR",
+          minimumFractionDigits: 0,
+          maximumFractionDigits: 0,
+        }).format(amount);
+
+        return (
+          <div className="flex items-center gap-2">
+            <Banknote className="w-5 h-5 text-[#AFAFAF]" />
+            <span className="text-gray-700">{formatAmount}</span>
+          </div>
+        );
+      },
     },
     {
       accessorKey: "total_collected_amount",
@@ -102,21 +111,29 @@ const IncomeTable = ({
           </div>
         );
       },
-      cell: ({ row }) => (
-        <div>
-          Rp{" "}
-          {row
-            .getValue<number>("total_collected_amount")
-            .toLocaleString("id-ID")}
-        </div>
-      ),
+      cell: ({ row }) => {
+        const amount = row.getValue("total_collected_amount") as number;
+        const formatAmount = new Intl.NumberFormat("id-ID", {
+          style: "currency",
+          currency: "IDR",
+          minimumFractionDigits: 0,
+          maximumFractionDigits: 0,
+        }).format(amount);
+
+        return (
+          <div className="flex items-center gap-2">
+            <Banknote className="w-5 h-5 text-[#EE3701]" />
+            <span className="text-gray-700">{formatAmount}</span>
+          </div>
+        );
+      },
     },
     {
       accessorKey: "collection_percentage",
-      header: "Status",
+      header: "Presentase",
       cell: ({ row }) => {
         return (
-          <div className="flex items-center text-sm w-fit font-normal text-black bg-[#282828] bg-opacity-5 px-2 h-8 rounded-lg">
+          <div className="flex items-center text-sm w-fit font-normal text-black bg-[#EE3701] bg-opacity-5 px-2 h-8 rounded-lg border-2 border-[#EE3701] border-opacity-15">
             <div className="flex items-center gap-1 font-semibold text-orange-500">
               <img src={CheckPercentage} alt="percentage" />
               {row.original.collection_percentage}%
