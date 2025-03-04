@@ -1,21 +1,21 @@
-import { zodResolver } from "@hookform/resolvers/zod";
-import * as z from "zod";
-import { Button } from "@/components/ui/button";
+import { zodResolver } from '@hookform/resolvers/zod';
+import * as z from 'zod';
+import { Button } from '@/components/ui/button';
 
-import { Input } from "@/components/ui/input";
+import { Input } from '@/components/ui/input';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import { SheetContent } from "@/components/ui/sheet";
-import { UserRound } from "lucide-react";
-import { useCreateEmployee } from "../../hooks/useEmployee";
+} from '@/components/ui/select';
+import { SheetContent } from '@/components/ui/sheet';
+import { UserRound } from 'lucide-react';
+import { useCreateEmployee } from '../../hooks/useEmployee';
 
-import { useToast } from "@/hooks/use-toast";
-import { useForm } from "react-hook-form";
+import { useToast } from '@/hooks/use-toast';
+import { useForm } from 'react-hook-form';
 import {
   Form,
   FormControl,
@@ -23,27 +23,27 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form";
-import PersonSquare from "@/assets/icon/ic_person_square.svg";
-import LocationComboBox from "../combobox/LocationComboBox";
-import { CreateEmployeeDTO } from "../../types/employee.types";
+} from '@/components/ui/form';
+import PersonSquare from '@/assets/icon/ic_person_square.svg';
+import LocationComboBox from '../combobox/LocationComboBox';
+import { CreateEmployeeDTO } from '../../types/employee.types';
 
 const formSchema = z.object({
-  name: z.string().min(2, { message: "Nama harus diisi" }),
-  role: z.enum(["collector", "manager", "supervisor", "admin"], {
-    required_error: "Pilih role pegawai",
+  name: z.string().min(2, { message: 'Nama harus diisi' }),
+  role: z.enum(['collector', 'manager', 'supervisor', 'admin'], {
+    required_error: 'Pilih role pegawai',
   }),
   phone: z
     .string()
-    .min(1, { message: "Nomor HP harus diisi" })
+    .min(1, { message: 'Nomor HP harus diisi' })
     .regex(/^\+62[1-9][0-9]{8,11}$/, {
-      message: "Nomor HP harus diawali +62 dan maksimal 14 karakter",
+      message: 'Nomor HP harus diawali +62 dan maksimal 14 karakter',
     })
     .refine((val) => val.length <= 14, {
-      message: "Nomor HP tidak boleh lebih dari 14 karakter",
+      message: 'Nomor HP tidak boleh lebih dari 14 karakter',
     }),
-  email: z.string().email({ message: "Email tidak valid" }),
-  location: z.string().min(1, { message: "Lokasi harus dipilih" }),
+  email: z.string().email({ message: 'Email tidak valid' }),
+  location: z.string().min(1, { message: 'Lokasi harus dipilih' }),
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -61,11 +61,11 @@ const FormEmployee = ({ onOpenChange, setSubmitting }: FormEmployeeProps) => {
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      name: "",
+      name: '',
       role: undefined,
-      phone: "",
-      email: "",
-      location: "",
+      phone: '',
+      email: '',
+      location: '',
     },
   });
 
@@ -84,14 +84,13 @@ const FormEmployee = ({ onOpenChange, setSubmitting }: FormEmployeeProps) => {
       await createEmployee.mutateAsync(employeeData);
 
       toast({
-        title: "Berhasil menambahkan pegawai",
-        description: "Undangan telah dikirim ke email pegawai",
+        title: 'Berhasil menambahkan pegawai',
+        description: 'Undangan telah dikirim ke email pegawai',
       });
 
       form.reset();
       onOpenChange(false);
     } catch (error) {
-      console.error("Failed to create employee:", error);
     } finally {
       setSubmitting(false);
     }
@@ -246,7 +245,7 @@ const FormEmployee = ({ onOpenChange, setSubmitting }: FormEmployeeProps) => {
                 className="bg-orange-500 rounded-full hover:bg-orange-600"
                 disabled={createEmployee.isPending}
               >
-                {createEmployee.isPending ? "Menyimpan..." : "Simpan"}
+                {createEmployee.isPending ? 'Menyimpan...' : 'Simpan'}
               </Button>
             </div>
           </form>

@@ -1,9 +1,9 @@
-import { zodResolver } from "@hookform/resolvers/zod";
-import * as z from "zod";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { SheetContent } from "@/components/ui/sheet";
-import { useForm } from "react-hook-form";
+import { zodResolver } from '@hookform/resolvers/zod';
+import * as z from 'zod';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { SheetContent } from '@/components/ui/sheet';
+import { useForm } from 'react-hook-form';
 import {
   Form,
   FormControl,
@@ -11,22 +11,22 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form";
-import { useUpdateLocation, useLocation } from "../../hooks/useLocation";
-import { useToast } from "@/hooks/use-toast";
-import LocationSquare from "@/assets/icon/ic_location_square.svg";
-import type { UpdateLocationDTO } from "../../types/location.types";
-import DistrictComboBox from "@/components/common/comboBox/DistrictComboBox";
-import { Textarea } from "@/components/ui/textarea";
-import { useEffect } from "react";
-import { useQueryClient } from "@tanstack/react-query";
-import { SkeletonSheet } from "../loading/SkeletonSheet";
+} from '@/components/ui/form';
+import { useUpdateLocation, useLocation } from '../../hooks/useLocation';
+import { useToast } from '@/hooks/use-toast';
+import LocationSquare from '@/assets/icon/ic_location_square.svg';
+import type { UpdateLocationDTO } from '../../types/location.types';
+import DistrictComboBox from '@/components/common/comboBox/DistrictComboBox';
+import { Textarea } from '@/components/ui/textarea';
+import { useEffect } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
+import { SkeletonSheet } from '../loading/SkeletonSheet';
 
 // Form validation schema
 const formSchema = z.object({
-  name: z.string().min(2, { message: "Nama lokasi harus diisi" }),
-  description: z.string().min(1, { message: "Keterangan harus diisi" }),
-  district: z.string().min(1, { message: "Kecamatan harus dipilih" }),
+  name: z.string().min(2, { message: 'Nama lokasi harus diisi' }),
+  description: z.string().min(1, { message: 'Keterangan harus diisi' }),
+  district: z.string().min(1, { message: 'Kecamatan harus dipilih' }),
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -51,9 +51,9 @@ const EditLocationForm = ({
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      name: "",
-      description: "",
-      district: "",
+      name: '',
+      description: '',
+      district: '',
     },
   });
 
@@ -63,7 +63,7 @@ const EditLocationForm = ({
       form.reset({
         name: location.name,
         description: location.description,
-        district: location.district_id || "",
+        district: location.district_id || '',
       });
     }
   }, [location, form]);
@@ -85,19 +85,18 @@ const EditLocationForm = ({
       });
 
       toast({
-        title: "Berhasil mengubah lokasi",
-        description: "Data lokasi telah berhasil diperbarui",
+        title: 'Berhasil mengubah lokasi',
+        description: 'Data lokasi telah berhasil diperbarui',
       });
 
       form.reset();
-      queryClient.invalidateQueries({ queryKey: ["locations"] });
+      queryClient.invalidateQueries({ queryKey: ['locations'] });
       onOpenChange(false);
     } catch (error) {
-      console.error("Failed to update location:", error);
       toast({
-        title: "Gagal mengubah lokasi",
-        description: "Terjadi kesalahan saat memperbarui data lokasi",
-        variant: "destructive",
+        title: 'Gagal mengubah lokasi',
+        description: 'Terjadi kesalahan saat memperbarui data lokasi',
+        variant: 'destructive',
       });
     } finally {
       setSubmitting(false);
@@ -193,7 +192,7 @@ const EditLocationForm = ({
                 className="bg-orange-500 rounded-full hover:bg-orange-600"
                 disabled={updateLocation.isPending}
               >
-                {updateLocation.isPending ? "Menyimpan..." : "Simpan"}
+                {updateLocation.isPending ? 'Menyimpan...' : 'Simpan'}
               </Button>
             </div>
           </form>

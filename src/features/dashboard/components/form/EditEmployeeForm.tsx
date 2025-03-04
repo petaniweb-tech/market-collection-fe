@@ -1,21 +1,21 @@
-import * as React from "react";
-import { zodResolver } from "@hookform/resolvers/zod";
-import * as z from "zod";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import * as React from 'react';
+import { zodResolver } from '@hookform/resolvers/zod';
+import * as z from 'zod';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import { SheetContent } from "@/components/ui/sheet";
-import { UserRound } from "lucide-react";
-import { useUpdateEmployee, useEmployee } from "../../hooks/useEmployee";
-import type { UpdateEmployeeDTO } from "../../types/employee.types";
-import { useToast } from "@/hooks/use-toast";
-import { useForm } from "react-hook-form";
+} from '@/components/ui/select';
+import { SheetContent } from '@/components/ui/sheet';
+import { UserRound } from 'lucide-react';
+import { useUpdateEmployee, useEmployee } from '../../hooks/useEmployee';
+import type { UpdateEmployeeDTO } from '../../types/employee.types';
+import { useToast } from '@/hooks/use-toast';
+import { useForm } from 'react-hook-form';
 import {
   Form,
   FormControl,
@@ -23,20 +23,20 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form";
-import { useEffect } from "react";
-import { useQueryClient } from "@tanstack/react-query";
-import PersonSquare from "@/assets/icon/ic_person_square.svg";
-import LocationComboBox from "../combobox/LocationComboBox";
-import { SkeletonSheet } from "../loading/SkeletonSheet";
+} from '@/components/ui/form';
+import { useEffect } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
+import PersonSquare from '@/assets/icon/ic_person_square.svg';
+import LocationComboBox from '../combobox/LocationComboBox';
+import { SkeletonSheet } from '../loading/SkeletonSheet';
 
 const formSchema = z.object({
-  name: z.string().min(2, { message: "Nama harus diisi" }),
-  role: z.enum(["collector", "manager", "supervisor", "admin"], {
-    required_error: "Pilih role pegawai",
+  name: z.string().min(2, { message: 'Nama harus diisi' }),
+  role: z.enum(['collector', 'manager', 'supervisor', 'admin'], {
+    required_error: 'Pilih role pegawai',
   }),
-  phone: z.string().min(1, { message: "Nomor HP harus diisi" }),
-  email: z.string().email({ message: "Email tidak valid" }),
+  phone: z.string().min(1, { message: 'Nomor HP harus diisi' }),
+  email: z.string().email({ message: 'Email tidak valid' }),
   location: z.string().optional(),
 });
 
@@ -62,11 +62,11 @@ const EditFormEmployee = ({
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      name: "",
+      name: '',
       role: undefined,
-      phone: "",
-      email: "",
-      location: "",
+      phone: '',
+      email: '',
+      location: '',
     },
   });
 
@@ -99,17 +99,16 @@ const EditFormEmployee = ({
       });
 
       toast({
-        title: "Berhasil memperbarui pegawai",
-        description: "Data pegawai telah diperbarui",
+        title: 'Berhasil memperbarui pegawai',
+        description: 'Data pegawai telah diperbarui',
       });
-      queryClient.invalidateQueries({ queryKey: ["employees"] });
+      queryClient.invalidateQueries({ queryKey: ['employees'] });
       onOpenChange(false);
     } catch (error) {
-      console.error("Failed to update employee:", error);
       toast({
-        title: "Gagal memperbarui pegawai",
-        description: "Terjadi kesalahan saat memperbarui data pegawai",
-        variant: "destructive",
+        title: 'Gagal memperbarui pegawai',
+        description: 'Terjadi kesalahan saat memperbarui data pegawai',
+        variant: 'destructive',
       });
     } finally {
       setSubmitting(false);
@@ -246,7 +245,7 @@ const EditFormEmployee = ({
                   <FormLabel>Lokasi Kerja</FormLabel>
                   <FormControl>
                     <LocationComboBox
-                      value={field.value || ""}
+                      value={field.value || ''}
                       onChange={field.onChange}
                       placeholder="Pilih Lokasi Kerja"
                       isInsideSheet={true}
@@ -271,7 +270,7 @@ const EditFormEmployee = ({
                 className="bg-orange-500 rounded-full hover:bg-orange-600"
                 disabled={updateEmployee.isPending}
               >
-                {updateEmployee.isPending ? "Menyimpan..." : "Simpan"}
+                {updateEmployee.isPending ? 'Menyimpan...' : 'Simpan'}
               </Button>
             </div>
           </form>
