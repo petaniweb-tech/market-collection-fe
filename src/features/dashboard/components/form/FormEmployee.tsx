@@ -19,7 +19,6 @@ import { useForm } from "react-hook-form";
 import {
   Form,
   FormControl,
-  // FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -29,7 +28,6 @@ import PersonSquare from "@/assets/icon/ic_person_square.svg";
 import LocationComboBox from "../combobox/LocationComboBox";
 import { CreateEmployeeDTO } from "../../types/employee.types";
 
-// Form validation schema
 const formSchema = z.object({
   name: z.string().min(2, { message: "Nama harus diisi" }),
   role: z.enum(["collector", "manager", "supervisor", "admin"], {
@@ -75,7 +73,6 @@ const FormEmployee = ({ onOpenChange, setSubmitting }: FormEmployeeProps) => {
     try {
       setSubmitting(true);
 
-      // Transform form values to match API expectations
       const employeeData: CreateEmployeeDTO = {
         name: values.name,
         role: values.role,
@@ -89,18 +86,12 @@ const FormEmployee = ({ onOpenChange, setSubmitting }: FormEmployeeProps) => {
       toast({
         title: "Berhasil menambahkan pegawai",
         description: "Undangan telah dikirim ke email pegawai",
-        // variant: "success",
       });
 
       form.reset();
       onOpenChange(false);
     } catch (error) {
       console.error("Failed to create employee:", error);
-      // toast({
-      //   title: "Gagal menambahkan pegawai",
-      //   description: "Terjadi kesalahan saat menambahkan pegawai baru",
-      //   variant: "destructive",
-      // });
     } finally {
       setSubmitting(false);
     }
@@ -110,12 +101,13 @@ const FormEmployee = ({ onOpenChange, setSubmitting }: FormEmployeeProps) => {
     <SheetContent className="w-full max-w-md rounded-lg sm:max-w-lg">
       <div className="pt-6">
         <div className="">
-          {/* <User className="w-6 h-6 text-orange-500" /> */}
           <img src={PersonSquare} alt="Profile" className="mb-6" />
 
           <div className="mb-7">
             <h2 className="text-xl font-semibold">Tambah pegawai baru</h2>
-            <div className="font-normal text-[#909090]">Isi data pegawai baru untuk ditambahkan ke sistem</div>
+            <div className="font-normal text-[#909090]">
+              Isi data pegawai baru untuk ditambahkan ke sistem
+            </div>
             <div className="h-px mt-4 bg-gray-200"></div>
           </div>
         </div>

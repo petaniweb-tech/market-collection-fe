@@ -14,8 +14,10 @@ import {
   ChevronRight,
   ArrowUpDown,
   Building2,
+  Store,
 } from "lucide-react";
 import { useState } from "react";
+import CheckPercentage from "@/assets/icon/ic_check_percentage.svg";
 
 interface IncomeTableProps {
   data: Income[];
@@ -34,7 +36,6 @@ const IncomeTable = ({
 }: IncomeTableProps) => {
   const [sorting, setSorting] = useState<SortingState>([]);
 
-  // Calculate start index for row numbering
   const startIndex = (currentPage - 1) * 10;
 
   const columns: ColumnDef<Income>[] = [
@@ -56,10 +57,40 @@ const IncomeTable = ({
     {
       accessorKey: "merchant_count",
       header: "Lapak",
-      cell: ({ row }) => <div>{row.getValue("merchant_count")} Lapak</div>,
+      cell: ({ row }) => {
+        return (
+          <div className="flex items-center gap-2">
+            <Store className="w-5 h-5 text-gray-500" />
+            <span className="text-gray-700">
+              {row.original.merchant_count} Lapak
+            </span>
+          </div>
+        );
+      },
     },
     {
       accessorKey: "total_expected_amount",
+      header: ({ column }) => {
+        return (
+          <div
+            className="flex items-center"
+            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          >
+            <span>TARGET HARIAN</span>
+          </div>
+        );
+      },
+      cell: ({ row }) => (
+        <div>
+          Rp{" "}
+          {row
+            .getValue<number>("total_expected_amount")
+            .toLocaleString("id-ID")}
+        </div>
+      ),
+    },
+    {
+      accessorKey: "total_collected_amount",
       header: ({ column }) => {
         return (
           <div
@@ -75,7 +106,7 @@ const IncomeTable = ({
         <div>
           Rp{" "}
           {row
-            .getValue<number>("total_expected_amount")
+            .getValue<number>("total_collected_amount")
             .toLocaleString("id-ID")}
         </div>
       ),
@@ -84,27 +115,11 @@ const IncomeTable = ({
       accessorKey: "collection_percentage",
       header: "Status",
       cell: ({ row }) => {
-        const percentage = row.getValue<number>("collection_percentage");
-        let colorClass = "bg-green-100 text-green-800";
-
-        if (percentage < 50) {
-          colorClass = "bg-red-100 text-red-800";
-        } else if (percentage < 80) {
-          colorClass = "bg-yellow-100 text-yellow-800";
-        }
-
         return (
-          // <div className="">
-          //   <span className={`inline-block px-2 py-1 rounded ${colorClass}`}>
-          //     {percentage}%
-          //   </span>
-          // </div>
           <div className="flex items-center text-sm w-fit font-normal text-black bg-[#282828] bg-opacity-5 px-2 h-8 rounded-lg">
             <div className="flex items-center gap-1 font-semibold text-orange-500">
-              <svg viewBox="0 0 24 24" className="w-4 h-4" fill="currentColor">
-                <path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm0 18c-4.411 0-8-3.589-8-8s3.589-8 8-8 8 3.589 8 8-3.589 8-8 8zm3.707-11.707L11 13.586V8a1 1 0 00-2 0v6c0 .266.105.52.293.707l5 5a.997.997 0 001.414 0 .999.999 0 000-1.414l-4.293-4.293 4.293-4.293a.999.999 0 10-1.414-1.414z" />
-              </svg>
-              100%
+              <img src={CheckPercentage} alt="percentage" />
+              {row.original.collection_percentage}%
             </div>
           </div>
         );
@@ -125,7 +140,6 @@ const IncomeTable = ({
     },
   });
 
-  // Pagination buttons component
   const getPaginationButtons = (): JSX.Element[] => {
     const buttons: JSX.Element[] = [];
     const maxVisibleButtons = 5;
