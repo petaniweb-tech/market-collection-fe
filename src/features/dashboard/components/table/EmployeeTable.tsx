@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-// components/EmployeeTable.tsx
 import {
   ColumnDef,
   flexRender,
@@ -15,7 +14,6 @@ import {
   ChevronRight,
   Edit,
   MoreHorizontal,
-  MapPin,
   XCircle,
   CheckCircle2,
   Building2,
@@ -64,7 +62,6 @@ const EmployeeTable = ({
     setEditModalOpen(true);
   };
 
-  // Get role display name
   const getRoleDisplayName = (role: string): string => {
     switch (role) {
       case "collector":
@@ -80,7 +77,6 @@ const EmployeeTable = ({
     }
   };
 
-  // Function to get role color
   const getRoleColor = (role: string): string => {
     switch (role) {
       case "collector":
@@ -96,8 +92,7 @@ const EmployeeTable = ({
     }
   };
 
-  // Calculate start index for row numbering
-  const startIndex = (currentPage - 1) * 10; // Assuming 10 items per page
+  const startIndex = (currentPage - 1) * 10;
 
   const columns: ColumnDef<Employee>[] = [
     {
@@ -116,21 +111,6 @@ const EmployeeTable = ({
     {
       accessorKey: "email",
       header: "Email",
-      // header: ({ column }) => {
-      //   return (
-      //     <Button
-      //       variant="ghost"
-      //       onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-      //       className="hover:bg-transparent"
-      //     >
-      //       Email
-      //       <ArrowUpDown className="w-4 h-4 ml-2" />
-      //     </Button>
-      //   );
-      // },
-      // cell: ({ row }) => (
-      //   <div className="lowercase">{row.getValue("email")}</div>
-      // ),
     },
 
     {
@@ -252,19 +232,16 @@ const EmployeeTable = ({
     },
   });
 
-  // Determine which page buttons to show
   const getPaginationButtons = (): JSX.Element[] => {
     const buttons: JSX.Element[] = [];
     const maxVisibleButtons = 5;
     let startPage = Math.max(1, currentPage - 2);
     const endPage = Math.min(totalPages, startPage + maxVisibleButtons - 1);
 
-    // Adjust start if we're near the end
     if (endPage - startPage < maxVisibleButtons - 1) {
       startPage = Math.max(1, endPage - maxVisibleButtons + 1);
     }
 
-    // Add previous button
     buttons.push(
       <Button
         key="prev"
@@ -277,7 +254,6 @@ const EmployeeTable = ({
       </Button>
     );
 
-    // Add page buttons
     for (let i = startPage; i <= endPage; i++) {
       buttons.push(
         <Button
@@ -296,7 +272,6 @@ const EmployeeTable = ({
       );
     }
 
-    // Add ellipsis if needed
     if (endPage < totalPages) {
       buttons.push(
         <Button
@@ -309,7 +284,6 @@ const EmployeeTable = ({
         </Button>
       );
 
-      // Add last page
       buttons.push(
         <Button
           key={totalPages}
@@ -323,7 +297,6 @@ const EmployeeTable = ({
       );
     }
 
-    // Add next button
     buttons.push(
       <Button
         key="next"

@@ -1,6 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable @typescript-eslint/no-unused-vars */
-// pages/Employee.tsx
 import React, { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetTrigger } from "@/components/ui/sheet";
@@ -28,15 +25,12 @@ const Employee = () => {
   const { isAdmin } = usePermissions();
 
   const [searchTerm, setSearchTerm] = useState("");
-  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
   const [page, setPage] = useState(1);
   const [limit] = useState(10);
   const [activeTab, setActiveTab] = useState<TabOption>("semua");
   const [selectedLocation, setSelectedLocation] = useState("");
   const [isOpen, setIsOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const [employeeToDelete, setEmployeeToDelete] = useState<string | null>(null);
   const [statusDialogOpen, setStatusDialogOpen] = useState(false);
   const [selectedEmployee, setSelectedEmployee] = useState<{
     id: string;
@@ -47,21 +41,6 @@ const Employee = () => {
 
   const { toast } = useToast();
 
-  // Convert UI tab values to API role filter values
-  const getRoleFilter = (): string | undefined => {
-    switch (activeTab) {
-      case "collector":
-        return "collector";
-      case "kepala":
-        return "manager";
-      case "dinas":
-        return "supervisor";
-      default:
-        return undefined;
-    }
-  };
-
-  // Get employees with filters
   const {
     data: employeeData,
     isLoading,
@@ -70,16 +49,14 @@ const Employee = () => {
     page,
     limit,
     sort: "name",
-    order: sortOrder,
+    order: "desc",
     search: searchTerm || undefined,
     filter_column: filterColumns.length > 0 ? filterColumns : null,
     filter_value: filterValues.length > 0 ? filterValues : null,
   });
 
-  const { mutateAsync: deleteEmployee, isSuccess: isSuccessDelete } =
-    useDeleteEmployee();
-  const { mutateAsync: reactivateEmployee, isSuccess: isSuccessReactivate } =
-    useReactivateEmployee();
+  const { mutateAsync: deleteEmployee } = useDeleteEmployee();
+  const { mutateAsync: reactivateEmployee } = useReactivateEmployee();
 
   const employees = employeeData?.records || [];
   const totalPages = employeeData?.totalPage || 1;
@@ -90,19 +67,18 @@ const Employee = () => {
     }
   }, [isOpen, refetch]);
 
-  // Update filters when tab/role changes
   useEffect(() => {
     updateFilters();
   }, [activeTab, selectedLocation]);
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(e.target.value);
-    setPage(1); // Reset to first page on new search
+    setPage(1);
   };
 
   const handleLocationChange = (value: string) => {
     setSelectedLocation(value);
-    setPage(1); // Reset to first page when location changes
+    setPage(1);
   };
 
   const handleRoleChange = (value) => {
@@ -114,7 +90,6 @@ const Employee = () => {
     const newColumns: string[] = [];
     const newValues: string[] = [];
 
-    // Add role filter if not "semua"
     if (activeTab !== "semua") {
       newColumns.push("role");
 
@@ -136,7 +111,6 @@ const Employee = () => {
       newValues.push(roleValue);
     }
 
-    // Add location filter if selected
     if (selectedLocation) {
       newColumns.push("location");
       newValues.push(selectedLocation);
@@ -192,34 +166,10 @@ const Employee = () => {
     setStatusDialogOpen(true);
   };
 
-  // const handleReactivate = async (id: string) => {
-  //   try {
-  //     await reactivateEmployee(id);
-
-  //     if (isSuccessReactivate) {
-  //       refetch();
-  //       toast({
-  //         title: "Berhasil mengaktifkan pegawai",
-  //         description: "Data pegawai telah diaktifkan kembali",
-  //       });
-  //     } else {
-  //       toast({
-  //         title: "Gagal mengaktifkan pegawai",
-  //         description: "Terjadi kesalahan saat mengaktifkan data pegawai",
-  //         variant: "destructive",
-  //       });
-  //     }
-  //   } catch (error) {
-  //     console.error("Delete employee error:", error);
-  //   }
-  // };
-
-  // Redirect to login if not authenticated
   if (!isAuthenticated) {
     return <Navigate to="/" />;
   }
 
-  // Show unauthorized page if user is not an admin
   if (!isAdmin()) {
     return <Unauthorized />;
   }
