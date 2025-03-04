@@ -28,6 +28,7 @@ import { useEffect } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import PersonSquare from '@/assets/icon/ic_person_square.svg';
 import LocationComboBox from '../combobox/LocationComboBox';
+import { SkeletonSheet } from '../loading/SkeletonSheet';
 
 const formSchema = z.object({
   name: z.string().min(2, { message: 'Nama harus diisi' }),
@@ -135,12 +136,7 @@ const EditFormEmployee = ({
   if (isLoading) {
     return (
       <SheetContent className="w-full max-w-md rounded-lg sm:max-w-lg">
-        <div className="flex items-center justify-center h-full">
-          <div className="text-center">
-            <div className="w-8 h-8 mx-auto border-4 rounded-full border-t-orange-500 border-b-orange-300 border-l-orange-300 border-r-orange-300 animate-spin"></div>
-            <p className="mt-2 text-sm text-gray-500">Memuat data pegawai...</p>
-          </div>
-        </div>
+        <SkeletonSheet />
       </SheetContent>
     );
   }

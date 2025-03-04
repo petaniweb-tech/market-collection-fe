@@ -170,7 +170,7 @@ const Deposit = () => {
       case "manager":
         return "Setoran Kepala Lokasi";
       case "bank":
-        return "Setoran ke Bank";
+        return "Setoran Bank";
     }
   };
 
@@ -217,7 +217,7 @@ const Deposit = () => {
               }`}
               onClick={() => handleTabChange("bank")}
             >
-              Setoran Collector Lapak
+              Setoran Bank
             </Button>
           </div>
 

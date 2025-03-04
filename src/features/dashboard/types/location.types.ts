@@ -1,3 +1,5 @@
+import { District } from "@/types/common.types";
+
 export interface Location {
     id: string;
     name: string;
@@ -10,6 +12,8 @@ export interface Location {
     created_by: string;
     updated_by: string;
     deleted_by: string | null;
+    district_id: string | null;
+    district: District;
   }
   
   export interface CreateLocationDTO {
@@ -19,6 +23,8 @@ export interface Location {
     description: string;
     created_by?: string;
     updated_by?: string;
+    district_id: string | null;
+    district: District;
   }
   
   export interface UpdateLocationDTO {

@@ -17,6 +17,8 @@ export const locationService = {
     sort?: string;
     order?: "asc" | "desc";
     search?: string;
+    filter_column?: string[] | null;
+    filter_value?: string[] | null;
   }): Promise<PaginatedResponse<Location>> => {
     const response = await axiosInstance.get<
       ApiResponse<PaginatedResponse<Location>>

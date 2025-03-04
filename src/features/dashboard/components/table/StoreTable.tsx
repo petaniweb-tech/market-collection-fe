@@ -6,7 +6,7 @@ import {
   useReactTable,
 } from "@tanstack/react-table";
 import { Button } from "@/components/ui/button";
-import { SkeletonRow } from "../page/SkeletonRow";
+import { SkeletonRow } from "../loading/SkeletonRow";
 
 import {
   ChevronLeft,

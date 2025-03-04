@@ -133,6 +133,7 @@ const HistoryTransactionDialog: React.FC<HistoryTransactionDialogProps> = ({
                     }).format(store?.expected_deposit_amount || 0)}
                   </span>
                 </div>
+
                 <div className="flex items-center justify-between">
                   <span className="text-gray-600">Status</span>
                   {store?.status === 'active' ? (
@@ -176,9 +177,12 @@ const HistoryTransactionDialog: React.FC<HistoryTransactionDialogProps> = ({
                     >
                       <div>
                         <div className="flex items-center justify-between">
-                          <span className="text-gray-600">Tanggal Setoran</span>
+                          <span className="text-gray-600">Waktu Setoran</span>
                           <span className="font-medium">
-                            {transaction.date}
+                            {transaction.date} -{' '}
+                            {transaction?.date
+                              ? format(new Date(transaction.date), 'HH:mm')
+                              : '-'}
                           </span>
                         </div>
                         <div className="flex items-center justify-between mt-2">
