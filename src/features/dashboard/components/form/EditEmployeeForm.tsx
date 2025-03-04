@@ -102,32 +102,6 @@ const EditFormEmployee = ({
       queryClient.invalidateQueries({ queryKey: ['employees'] });
       onOpenChange(false);
     } catch (error: any) {
-      if (error?.statusCode === 400) {
-        toast({
-          title: 'Gagal menambahkan pegawai',
-          description: 'Input Error: Cek Kembali Inputan Anda',
-          variant: 'destructive',
-        });
-      } else if (error?.statusCode === 500) {
-        toast({
-          title: 'Gagal menambahkan pegawai',
-          description: 'Server Error: Hubungi Admin',
-          variant: 'destructive',
-        });
-      } else if (error?.statusCode === 401 || error?.statusCode === 404) {
-        toast({
-          title: 'Anda tidak memiliki akses ke halaman ini',
-          description: 'Server Error: Hubungi Admin',
-          variant: 'destructive',
-        });
-      } else {
-        console.error('Failed to create employee:', error);
-        toast({
-          title: 'Gagal menambahkan pegawai',
-          description: 'Terjadi kesalahan saat menambahkan pegawai baru',
-          variant: 'destructive',
-        });
-      }
     } finally {
       setSubmitting(false);
     }

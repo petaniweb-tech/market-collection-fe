@@ -95,32 +95,6 @@ const FormEmployee = ({ onOpenChange, setSubmitting }: FormEmployeeProps) => {
       form.reset();
       onOpenChange(false);
     } catch (error: any) {
-      if (error?.statusCode === 400) {
-        toast({
-          title: 'Gagal menambahkan lapak',
-          description: 'Input Error: Cek Kembali Inputan Anda',
-          variant: 'destructive',
-        });
-      } else if (error?.statusCode === 500) {
-        toast({
-          title: 'Gagal menambahkan lapak',
-          description: 'Server Error: Hubungi Admin',
-          variant: 'destructive',
-        });
-      } else if (error?.statusCode === 401 || error?.statusCode === 404) {
-        toast({
-          title: 'Anda tidak memiliki akses ke halaman ini',
-          description: 'Server Error: Hubungi Admin',
-          variant: 'destructive',
-        });
-      } else {
-        console.error('Failed to create employee:', error);
-        toast({
-          title: 'Gagal menambahkan lapak',
-          description: 'Terjadi kesalahan saat menambahkan lapak baru',
-          variant: 'destructive',
-        });
-      }
     } finally {
       setSubmitting(false);
     }

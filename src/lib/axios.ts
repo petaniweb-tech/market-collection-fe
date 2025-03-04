@@ -1,8 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-import { toast } from "@/hooks/use-toast";
-import { ApiError } from "@/types/api.types";
-import axios, { AxiosRequestHeaders } from "axios";
+import { toast } from '@/hooks/use-toast';
+import { ApiError } from '@/types/api.types';
+import axios, { AxiosRequestHeaders } from 'axios';
 
 const baseURL = import.meta.env.VITE_API_URL;
 
@@ -10,7 +10,7 @@ export const axiosInstance = axios.create({
   baseURL,
   timeout: 10000,
   headers: {
-    "Content-Type": "application/json",
+    'Content-Type': 'application/json',
   },
 });
 
@@ -49,7 +49,7 @@ const handleErrorResponse = (error: any) => {
   if (
     error.config &&
     error.config.url &&
-    error.config.url.includes("/refresh-token")
+    error.config.url.includes('/refresh-token')
   ) {
     return;
   }
@@ -59,41 +59,42 @@ const handleErrorResponse = (error: any) => {
 
   if (statusCode === 400) {
     toast({
-      title: "Input Error",
-      description: "Periksa kembali data yang Anda masukkan",
-      variant: "destructive",
+      title: 'Input Error',
+      description: 'Periksa kembali data yang Anda masukkan',
+      variant: 'destructive',
     });
   } else if (statusCode === 500) {
     toast({
-      title: "Server Error",
-      description: "Terjadi kesalahan pada server, silakan hubungi admin",
-      variant: "destructive",
+      title: 'Server Error',
+      description: 'Terjadi kesalahan pada server, silakan hubungi admin',
+      variant: 'destructive',
     });
   } else if (statusCode === 401) {
     toast({
-      title: "Akses Ditolak",
+      title: 'Akses Ditolak',
       description:
-        "Sesi Anda telah berakhir atau tidak memiliki izin yang cukup",
-      variant: "destructive",
+        'Sesi Anda telah berakhir atau tidak memiliki izin yang cukup',
+      variant: 'destructive',
     });
   } else if (statusCode === 404) {
     toast({
-      title: "Data Tidak Ditemukan",
-      description: "Data yang Anda cari tidak ditemukan",
-      variant: "destructive",
+      title: 'Data Tidak Ditemukan',
+      description: 'Data yang Anda cari tidak ditemukan',
+      variant: 'destructive',
     });
   } else if (statusCode === 403) {
     toast({
-      title: "Akses Dibatasi",
-      description: "Anda tidak memiliki izin untuk mengakses resource ini",
-      variant: "destructive",
+      title: 'Akses Dibatasi',
+      description: 'Anda tidak memiliki izin untuk mengakses resource ini',
+      variant: 'destructive',
     });
   } else {
     // Fallback for other errors
     toast({
-      title: "Terjadi Kesalahan",
-      description: "Terjadi kesalahan saat memproses permintaan Anda",
-      variant: "destructive",
+      title: 'Terjadi Kesalahan',
+      description:
+        'Terjadi kesalahan saat memproses permintaan Anda. Silahkan hubungi Admin',
+      variant: 'destructive',
     });
   }
 };
@@ -101,7 +102,7 @@ const handleErrorResponse = (error: any) => {
 // Request interceptor
 axiosInstance.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem("token");
+    const token = localStorage.getItem('token');
 
     if (!config.headers) {
       config.headers = {} as AxiosRequestHeaders;
@@ -133,18 +134,18 @@ axiosInstance.interceptors.response.use(
     // Check if error is 401 (Unauthorized) and it's not a refresh token request
     if (
       error.response.status === 401 &&
-      !originalRequest.url.includes("/refresh-token")
+      !originalRequest.url.includes('/refresh-token')
     ) {
       // Get refresh token from storage
-      const refreshToken = localStorage.getItem("refresh_token");
+      const refreshToken = localStorage.getItem('refresh_token');
 
       if (!refreshToken) {
         // No refresh token available, redirect to login
-        localStorage.removeItem("token");
-        localStorage.removeItem("refresh_token");
-        localStorage.removeItem("expires_at");
-        localStorage.removeItem("user");
-        window.location.href = "/";
+        localStorage.removeItem('token');
+        localStorage.removeItem('refresh_token');
+        localStorage.removeItem('expires_at');
+        localStorage.removeItem('user');
+        window.location.href = '/';
         return Promise.reject(error);
       }
 
@@ -158,7 +159,7 @@ axiosInstance.interceptors.response.use(
           const response = await axios.post(
             `${baseURL}/api/auth/refresh-token`,
             { refresh_token: refreshToken },
-            { headers: { "Content-Type": "application/json" } }
+            { headers: { 'Content-Type': 'application/json' } }
           );
 
           const responseData = response.data as {
@@ -172,7 +173,7 @@ axiosInstance.interceptors.response.use(
               message?: string;
               data: { session: any };
             };
-            throw new Error(responseData.message || "Failed to refresh token");
+            throw new Error(responseData.message || 'Failed to refresh token');
           }
 
           const { session } = (response.data as { data: { session: any } })
@@ -180,9 +181,9 @@ axiosInstance.interceptors.response.use(
           const { access_token, refresh_token, expires_at } = session;
 
           // Update tokens in localStorage
-          localStorage.setItem("token", access_token);
-          localStorage.setItem("refresh_token", refresh_token);
-          localStorage.setItem("expires_at", expires_at.toString());
+          localStorage.setItem('token', access_token);
+          localStorage.setItem('refresh_token', refresh_token);
+          localStorage.setItem('expires_at', expires_at.toString());
 
           // Update the Authorization header for the original request
           originalRequest.headers.Authorization = `Bearer ${access_token}`;
@@ -197,11 +198,11 @@ axiosInstance.interceptors.response.use(
           processQueue(refreshError);
 
           // Clear auth data and redirect to login
-          localStorage.removeItem("token");
-          localStorage.removeItem("refresh_token");
-          localStorage.removeItem("expires_at");
-          localStorage.removeItem("user");
-          window.location.href = "/";
+          localStorage.removeItem('token');
+          localStorage.removeItem('refresh_token');
+          localStorage.removeItem('expires_at');
+          localStorage.removeItem('user');
+          window.location.href = '/';
 
           return Promise.reject(refreshError);
         } finally {
@@ -216,7 +217,7 @@ axiosInstance.interceptors.response.use(
     }
 
     if (error.response?.data) {
-      const errorMessage = error.response.data.message || "An error occurred";
+      const errorMessage = error.response.data.message || 'An error occurred';
       const customError = new ApiError(
         errorMessage,
         error.response.status,
