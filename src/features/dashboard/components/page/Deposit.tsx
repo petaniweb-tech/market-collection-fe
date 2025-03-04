@@ -2,7 +2,7 @@
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Search, Download, Filter, ChevronDown } from "lucide-react";
+import { Search, Download, Filter, ChevronDown, Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/features/auth/hooks/useAuth";
 import { Navigate } from "@tanstack/react-router";
@@ -11,6 +11,7 @@ import { usePermissions } from "@/hooks/usePermission";
 import { useCollectorDeposits } from "../../hooks/useCollectorDeposit";
 import { useManagerDeposits } from "../../hooks/useManagerDeposit";
 import { useBankDeposits } from "../../hooks/useBankDeposit";
+import { exportToExcel } from "@/utils/exportUtils";
 
 type TabOption = "collector" | "manager" | "bank";
 
@@ -23,6 +24,7 @@ const Deposit = () => {
   const [page, setPage] = useState(1);
   const [limit] = useState(10);
   const [activeTab, setActiveTab] = useState<TabOption>("collector");
+  const [isDownloading, setIsDownloading] = useState(false);
 
   const { toast } = useToast();
 
@@ -91,12 +93,54 @@ const Deposit = () => {
     setPage(newPage);
   };
 
-  const handleDownload = () => {
-    // Implement download functionality
-    toast({
-      title: "Mengunduh data",
-      description: "Data riwayat setoran sedang diunduh",
-    });
+  // Client-side export function
+  const handleDownload = async () => {
+    try {
+      setIsDownloading(true);
+
+      toast({
+        title: "Mempersiapkan data",
+        description: "Data setoran sedang disiapkan untuk diunduh",
+      });
+
+      // Get all data for the active tab
+      let allData;
+
+      // For client-side export, we need to decide:
+      // 1. Use currently loaded data (fast but incomplete if multiple pages)
+      // 2. Load all data first (complete but might be slower for large datasets)
+
+      // Using approach #1 for simplicity - only export what's currently loaded
+      // You can modify this to fetch all data if needed
+      switch (activeTab) {
+        case "collector":
+          allData = collectorQuery.data?.records || [];
+          break;
+        case "manager":
+          allData = managerQuery.data?.records || [];
+          break;
+        case "bank":
+          allData = bankQuery.data?.records || [];
+          break;
+      }
+
+      // Export data to Excel
+      exportToExcel(allData, activeTab);
+
+      toast({
+        title: "Berhasil mengunduh data",
+        description: "Data telah berhasil diunduh",
+      });
+    } catch (error) {
+      console.error("Export error:", error);
+      toast({
+        title: "Gagal mengunduh data",
+        description: "Terjadi kesalahan saat mengunduh data",
+        variant: "destructive",
+      });
+    } finally {
+      setIsDownloading(false);
+    }
   };
 
   // Get placeholder text based on active tab
@@ -126,7 +170,7 @@ const Deposit = () => {
       case "manager":
         return "Setoran Kepala Lokasi";
       case "bank":
-        return "Setoran ke Bank";
+        return "Setoran Bank";
     }
   };
 
@@ -173,7 +217,7 @@ const Deposit = () => {
               }`}
               onClick={() => handleTabChange("bank")}
             >
-              Setoran Collector Lapak
+              Setoran Bank
             </Button>
           </div>
 
@@ -183,8 +227,13 @@ const Deposit = () => {
             onClick={handleDownload}
             variant="outline"
             className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 rounded-md"
+            disabled={isDownloading || isLoading || data.length === 0}
           >
-            <Download className="w-4 h-4" />
+            {isDownloading ? (
+              <Loader2 className="w-4 h-4 animate-spin" />
+            ) : (
+              <Download className="w-4 h-4" />
+            )}
             Download Data Setoran
           </Button>
         </div>

@@ -5,7 +5,7 @@ import {
   useReactTable,
 } from "@tanstack/react-table";
 import { Button } from "@/components/ui/button";
-import { SkeletonRow } from "../page/SkeletonRow";
+import { SkeletonRow } from "../loading/SkeletonRow";
 import type { Location } from "../../types/location.types";
 import {
   ChevronLeft,
@@ -14,6 +14,7 @@ import {
   MoreHorizontal,
   Trash2,
   Building2,
+  MapPin,
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -25,6 +26,8 @@ import { useState } from "react";
 import { ConfirmationDeleteDialog } from "../dialog/ConfirmationDeleteDialog";
 import { useDeleteLocation } from "../../hooks/useLocation";
 import { toast } from "@/hooks/use-toast";
+import EditLocationForm from "../form/EditLocationForm";
+import { Sheet } from "@/components/ui/sheet";
 
 interface LocationTableProps {
   data: Location[];
@@ -44,13 +47,18 @@ const LocationTable = ({
   currentPage,
   totalPages,
   onPageChange,
+  onEditComplete,
 }: LocationTableProps) => {
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [locationToDelete, setLocationToDelete] = useState<string | null>(null);
+  const [editModalOpen, setEditModalOpen] = useState(false);
+  const [locationToEdit, setLocationToEdit] = useState<string | null>(null);
+  const [isEditSubmitting, setIsEditSubmitting] = useState(false);
   const deleteLocation = useDeleteLocation();
 
   const handleEdit = (id: string) => {
-    console.log(id);
+    setLocationToEdit(id);
+    setEditModalOpen(true);
   };
 
   const handleDelete = (id: string) => {
@@ -101,16 +109,16 @@ const LocationTable = ({
         </div>
       ),
     },
-    // {
-    //   accessorKey: "latitude",
-    //   header: "LATITUDE",
-    //   cell: ({ row }) => row.getValue("latitude")?.toFixed(4) || '-',
-    // },
-    // {
-    //   accessorKey: "longitude",
-    //   header: "LONGITUDE",
-    //   cell: ({ row }) => row.getValue("longitude")?.toFixed(4) || '-',
-    // },
+    {
+      accessorKey: "district.name",
+      header: "NAMA KECAMATAN",
+      cell: ({ row }) => (
+        <div className="flex items-center gap-2">
+          <MapPin className="w-5 h-5 text-gray-500" />
+          <span>{row.original.district.name}</span>
+        </div>
+      ),
+    },
     {
       accessorKey: "description",
       header: "Keterangan",
@@ -321,8 +329,7 @@ const LocationTable = ({
         description="Apakah anda yakin ingin menghapus lokasi ini? Tindakan ini tidak dapat dibatalkan."
       />
 
-      {/* Add the EditLocationForm */}
-      {/* <Sheet
+      <Sheet
         open={editModalOpen}
         onOpenChange={(open) => {
           setEditModalOpen(open);
@@ -339,7 +346,7 @@ const LocationTable = ({
             setSubmitting={setIsEditSubmitting}
           />
         )}
-      </Sheet> */}
+      </Sheet>
     </>
   );
 };

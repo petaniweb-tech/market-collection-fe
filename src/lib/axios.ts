@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
+import { toast } from "@/hooks/use-toast";
 import { ApiError } from "@/types/api.types";
 import axios, { AxiosRequestHeaders } from "axios";
 
@@ -42,6 +43,61 @@ const processQueue = (error, token = null) => {
   failedQueue = [];
 };
 
+// Handle error messages centrally
+const handleErrorResponse = (error: any) => {
+  // Skip notification for refresh token requests
+  if (
+    error.config &&
+    error.config.url &&
+    error.config.url.includes("/refresh-token")
+  ) {
+    return;
+  }
+
+  const statusCode =
+    error.statusCode || (error.response && error.response.status);
+
+  if (statusCode === 400) {
+    toast({
+      title: "Input Error",
+      description: "Periksa kembali data yang Anda masukkan",
+      variant: "destructive",
+    });
+  } else if (statusCode === 500) {
+    toast({
+      title: "Server Error",
+      description: "Terjadi kesalahan pada server, silakan hubungi admin",
+      variant: "destructive",
+    });
+  } else if (statusCode === 401) {
+    toast({
+      title: "Akses Ditolak",
+      description:
+        "Sesi Anda telah berakhir atau tidak memiliki izin yang cukup",
+      variant: "destructive",
+    });
+  } else if (statusCode === 404) {
+    toast({
+      title: "Data Tidak Ditemukan",
+      description: "Data yang Anda cari tidak ditemukan",
+      variant: "destructive",
+    });
+  } else if (statusCode === 403) {
+    toast({
+      title: "Akses Dibatasi",
+      description: "Anda tidak memiliki izin untuk mengakses resource ini",
+      variant: "destructive",
+    });
+  } else {
+    // Fallback for other errors
+    toast({
+      title: "Terjadi Kesalahan",
+      description: "Terjadi kesalahan saat memproses permintaan Anda",
+      variant: "destructive",
+    });
+  }
+};
+
 // Request interceptor
 axiosInstance.interceptors.request.use(
   (config) => {
@@ -70,6 +126,7 @@ axiosInstance.interceptors.response.use(
 
     // Skip if no config or response, or if it's already a retry
     if (!originalRequest || !error.response || originalRequest._retry) {
+      handleErrorResponse(error);
       return Promise.reject(error);
     }
 
@@ -159,16 +216,19 @@ axiosInstance.interceptors.response.use(
     }
 
     if (error.response?.data) {
-      const errorMessage = error.response.data.message || 'An error occurred';
+      const errorMessage = error.response.data.message || "An error occurred";
       const customError = new ApiError(
         errorMessage,
         error.response.status,
         error.response.data.success
       );
+
+      handleErrorResponse(customError);
       return Promise.reject(customError);
     }
 
     // For other errors, just pass them through
+    handleErrorResponse(error);
     return Promise.reject(error);
   }
 );

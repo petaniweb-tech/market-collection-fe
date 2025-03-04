@@ -19,9 +19,11 @@ export function useLocations(params?: {
   sort?: string;
   order?: "asc" | "desc";
   search?: string;
+  filter_column?: string[] | null;
+  filter_value?: string[] | null;
 }) {
   const shouldFetch = !params?.search || params.search.length >= 3;
-  
+
   return useQueryWithConfig(
     [...QUERY_KEYS.locations, JSON.stringify(params)],
     () => locationService.getLocations(params),

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 
 import { Sheet, SheetTrigger } from "@/components/ui/sheet";
@@ -20,7 +20,9 @@ const Location = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [locationToDelete, setLocationToDelete] = useState<string | null>(null);
-  const [selectedLocation, setSelectedLocation] = useState("");
+  const [selectedDistrict, setSelectedDistrict] = useState("");
+  const [filterColumns, setFilterColumns] = useState<string[]>([]);
+  const [filterValues, setFilterValues] = useState<string[]>([]);
 
   const { toast } = useToast();
 
@@ -35,6 +37,8 @@ const Location = () => {
     sort: "name",
     order: sortOrder,
     search: searchTerm || undefined,
+    filter_column: filterColumns.length > 0 ? filterColumns : null,
+    filter_value: filterValues.length > 0 ? filterValues : null,
   });
 
   const { mutateAsync: deleteLocation, isPending: isDeleting } =
@@ -50,14 +54,31 @@ const Location = () => {
     }
   }, [isOpen, refetch]);
 
+  useEffect(() => {
+    updateFilters();
+  }, [selectedDistrict]);
+
+  const updateFilters = () => {
+    const newColumns: string[] = [];
+    const newValues: string[] = [];
+
+    if (selectedDistrict) {
+      newColumns.push("district");
+      newValues.push(selectedDistrict);
+    }
+
+    setFilterColumns(newColumns);
+    setFilterValues(newValues);
+  };
+
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(e.target.value);
     setPage(1); // Reset to first page on new search
   };
 
-  const handleLocationChange = (value: string) => {
+  const handleDistrictChange = (value: string) => {
     console.log("Selected location:", value);
-    setSelectedLocation(value);
+    setSelectedDistrict(value);
     setPage(1); // Reset to first page when location changes
   };
 
@@ -83,7 +104,8 @@ const Location = () => {
     } catch (error) {
       toast({
         title: "Gagal menghapus lokasi",
-        description: error?.message || "Terjadi kesalahan saat menghapus lokasi",
+        description:
+          error?.message || "Terjadi kesalahan saat menghapus lokasi",
         variant: "destructive",
       });
       console.error("Delete location error:", error);
@@ -121,7 +143,7 @@ const Location = () => {
         {/* Left side total count */}
         <div>
           <span className="text-[#EE3701] font-semibold">
-            {totalLocations}{" "}Data Lokasi
+            {totalLocations} Data Lokasi
           </span>
           <span> ditampilkan</span>
         </div>
@@ -152,8 +174,8 @@ const Location = () => {
             </SelectContent>
           </Select> */}
           <DistrictComboBox
-            value={selectedLocation}
-            onChange={handleLocationChange}
+            value={selectedDistrict}
+            onChange={handleDistrictChange}
             placeholder="Pilih Kecamatan"
           />
         </div>
