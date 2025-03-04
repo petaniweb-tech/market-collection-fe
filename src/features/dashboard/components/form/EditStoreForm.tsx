@@ -22,6 +22,7 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import LocationComboBox from "../combobox/LocationComboBox";
 import StoreSquare from "@/assets/icon/ic_store_square.svg";
+import { SkeletonSheet } from "../loading/SkeletonSheet";
 
 const formatToRupiah = (value: string | number) => {
   const numberValue =
@@ -150,12 +151,7 @@ const EditStoreForm = ({
   if (isLoading) {
     return (
       <SheetContent className="w-full max-w-md rounded-lg sm:max-w-lg">
-        <div className="flex items-center justify-center h-full">
-          <div className="text-center">
-            <div className="w-8 h-8 mx-auto border-4 rounded-full border-t-orange-500 border-b-orange-300 border-l-orange-300 border-r-orange-300 animate-spin"></div>
-            <p className="mt-2 text-sm text-gray-500">Memuat data lapak...</p>
-          </div>
-        </div>
+        <SkeletonSheet />
       </SheetContent>
     );
   }

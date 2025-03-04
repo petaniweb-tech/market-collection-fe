@@ -96,11 +96,11 @@ const FormEmployee = ({ onOpenChange, setSubmitting }: FormEmployeeProps) => {
       onOpenChange(false);
     } catch (error) {
       console.error("Failed to create employee:", error);
-      toast({
-        title: "Gagal menambahkan pegawai",
-        description: "Terjadi kesalahan saat menambahkan pegawai baru",
-        variant: "destructive",
-      });
+      // toast({
+      //   title: "Gagal menambahkan pegawai",
+      //   description: "Terjadi kesalahan saat menambahkan pegawai baru",
+      //   variant: "destructive",
+      // });
     } finally {
       setSubmitting(false);
     }
