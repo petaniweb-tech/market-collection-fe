@@ -100,7 +100,7 @@ const Income = () => {
           <LocationComboBox
             value={selectedLocation}
             onChange={handleLocationChange}
-            placeholder="Lokasi Kerja"
+            placeholder="Lokasi"
           />
           <Select defaultValue="weekly" onValueChange={handleViewTypeChange}>
             <SelectTrigger className="bg-white border-0 min-w-32 focus:ring-1 focus:ring-orange-400">

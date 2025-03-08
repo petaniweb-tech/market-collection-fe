@@ -213,7 +213,7 @@ const Dashboard = () => {
               </div>
 
               {/* Table Rows */}
-              {[1, 2, 3, 4, 5].map((index) => (
+              {[1, 2, 3].map((index) => (
                 <div
                   key={index}
                   className="grid items-center grid-cols-10 gap-4 p-4 mb-3 bg-white rounded-2xl"
