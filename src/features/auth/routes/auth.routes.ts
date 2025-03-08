@@ -13,7 +13,8 @@ export const loginRoute = createRoute({
 });
 export const verifyRoute = createRoute({
   getParentRoute: () => rootRoute,
-  path: "/auth/verifikasi",
+  // path: "/auth/verifikasi",
+  path: "/auth/verify",
   component: Verify,
 });
 

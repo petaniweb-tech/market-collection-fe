@@ -15,6 +15,8 @@ interface AchievementParams {
   search?: string;
   sortOrder?: "asc" | "desc";
   limit?: number;
+  filter_column?: string[] | null;
+  filter_value?: string[] | null;
 }
 
 // Create the income service

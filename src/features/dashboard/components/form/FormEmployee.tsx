@@ -30,7 +30,12 @@ import LocationComboBox from "../combobox/LocationComboBox";
 import { CreateEmployeeDTO } from "../../types/employee.types";
 
 const formSchema = z.object({
-  name: z.string().min(2, { message: "Nama harus diisi" }),
+  name: z
+    .string()
+    .min(2, { message: "Nama harus diisi" })
+    .regex(/^[a-zA-Z0-9\s_]+$/, {
+      message: "Nama hanya boleh berisi huruf, angka, spasi, dan garis bawah",
+    }),
   role: z.enum(["collector", "manager", "supervisor", "admin"], {
     required_error: "Pilih role pegawai",
   }),
@@ -150,13 +155,13 @@ const FormEmployee = ({ onOpenChange, setSubmitting }: FormEmployeeProps) => {
                       >
                         <div className="flex items-center">
                           <UserRound className="w-4 h-4 mr-2 text-purple-500" />
-                          <span>Dinas Perdagangan Kota</span>
+                          <span>Pengawas</span>
                         </div>
                       </SelectItem>
                       <SelectItem value="admin" className="flex items-center">
                         <div className="flex items-center">
                           <UserRound className="w-4 h-4 mr-2 text-orange-500" />
-                          <span>Admin</span>
+                          <span>Dinas Perdagangan Kota</span>
                         </div>
                       </SelectItem>
                     </SelectContent>

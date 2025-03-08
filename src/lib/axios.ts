@@ -47,9 +47,10 @@ const processQueue = (error, token = null) => {
 const handleErrorResponse = (error: any) => {
   // Skip notification for refresh token requests
   if (
-    error.config &&
-    error.config.url &&
-    error.config.url.includes("/refresh-token")
+    (error.config &&
+      error.config.url &&
+      error.config.url.includes("/refresh-token")) ||
+    error.config.url.includes("/auth/verify")
   ) {
     return;
   }

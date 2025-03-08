@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 // import { Card, CardContent } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import CollectorForm from "./CollectorForm";
+import CollectorForm from "./form/CollectorForm";
 import { useState } from "react";
 import SuccessModal from "./SuccessModal";
 import { Navigate, useNavigate } from "@tanstack/react-router";
@@ -27,6 +27,7 @@ export default function Collector() {
   // State for modals
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isModalSuccessOpen, setIsShowModalSuccess] = useState(false);
+  const [depositFormData, setDepositFormData] = useState(null);
 
   // Fetch collector deposits for today
   const { data: collectorDepositsData, isLoading } = useCollectorDeposits({
@@ -47,6 +48,12 @@ export default function Collector() {
   };
 
   const handleSubmit = (formData) => {
+    setDepositFormData(formData);
+
+    // Use the mutation to create a new deposit
+    // Exclude the merchant object from the API request
+    // const { merchant, ...apiData } = formData;
+
     // Use the mutation to create a new deposit
     createDeposit(formData, {
       onSuccess: () => {
@@ -62,7 +69,9 @@ export default function Collector() {
 
   const handleClose = () => {
     setIsShowModalSuccess(false);
-    navigate({ to: "/deposit-confirmation" });
+    setDepositFormData(null);
+    // navigate({ to: "/deposit-confirmation" });
+    navigate({ to: "/collector" });
   };
 
   // Get deposits from API data or use fallback
@@ -135,7 +144,7 @@ export default function Collector() {
 
         <Button
           onClick={() => setIsModalOpen(true)}
-          className="w-auto px-4 py-2 my-2 font-medium text-white rounded-md bg-gradient-to-b from-[#FE8300] to-[#ED3400]"
+          className="w-auto px-4 py-2 mt-4 mb-8 font-medium text-white rounded-full bg-gradient-to-b from-[#FE8300] to-[#ED3400]"
         >
           <span className="mr-2">+</span>
           Buat Setoran
@@ -167,9 +176,9 @@ export default function Collector() {
                 {deposits.map((deposit, index) => (
                   <div
                     key={deposit.id || index}
-                    className="flex items-center gap-3 p-4 border cursor-pointer rounded-xl hover:bg-gray-50"
+                    className="flex items-center gap-3 p-4 bg-white cursor-pointer bg-opacity-40 rounded-xl hover:bg-gray-50"
                   >
-                    <div className="flex items-center justify-center w-8 h-8 bg-white rounded-lg">
+                    <div className="flex items-center justify-center w-10 h-10 bg-white rounded-lg">
                       <Store className="w-4 h-4" />
                     </div>
                     <div>
@@ -201,7 +210,11 @@ export default function Collector() {
         onSubmit={handleSubmit}
       />
       {isModalSuccessOpen && (
-        <SuccessModal isOpen={isModalSuccessOpen} onClose={handleClose} />
+        <SuccessModal
+          isOpen={isModalSuccessOpen}
+          onClose={handleClose}
+          depositData={depositFormData || undefined}
+        />
       )}
     </div>
   );

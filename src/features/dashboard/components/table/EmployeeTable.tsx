@@ -28,6 +28,7 @@ import { useState } from "react";
 import EditEmployeeForm from "../form/EditEmployeeForm";
 import { Sheet } from "@/components/ui/sheet";
 import { Employee } from "../../types/employee.types";
+import { usePermissions } from "@/hooks/usePermission";
 
 interface EmployeeTableProps {
   data: Employee[];
@@ -56,6 +57,7 @@ const EmployeeTable = ({
   const [employeeToEdit, setEmployeeToEdit] = useState<string | null>(null);
   const [isEditSubmitting, setIsEditSubmitting] = useState(false);
   const [sorting, setSorting] = useState<SortingState>([]);
+  const { isAdmin, isSupervisor } = usePermissions();
 
   const handleEdit = (id: string) => {
     setEmployeeToEdit(id);
@@ -69,9 +71,9 @@ const EmployeeTable = ({
       case "manager":
         return "Kepala Lokasi";
       case "supervisor":
-        return "Dinas Perdagangan Kota";
+        return "Pengawas";
       case "admin":
-        return "Admin";
+        return "Dinas Perdagangan Kota";
       default:
         return role;
     }
@@ -176,7 +178,7 @@ const EmployeeTable = ({
           <div className="flex justify-end">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                {employee.role != "admin" && (
+                {isAdmin() && (
                   <Button
                     variant="ghost"
                     className="relative w-8 h-8 p-0 hover:bg-gray-100"

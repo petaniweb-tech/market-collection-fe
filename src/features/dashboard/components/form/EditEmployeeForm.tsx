@@ -175,13 +175,13 @@ const EditFormEmployee = ({
                       >
                         <div className="flex items-center">
                           <UserRound className="w-4 h-4 mr-2 text-purple-500" />
-                          <span>Dinas Perdagangan Kota</span>
+                          <span>Pengawas</span>
                         </div>
                       </SelectItem>
                       <SelectItem value="admin" className="flex items-center">
                         <div className="flex items-center">
                           <UserRound className="w-4 h-4 mr-2 text-orange-500" />
-                          <span>Admin</span>
+                          <span>Dinas Perdagangan Kota</span>
                         </div>
                       </SelectItem>
                     </SelectContent>

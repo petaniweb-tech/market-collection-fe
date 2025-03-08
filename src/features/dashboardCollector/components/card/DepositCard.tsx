@@ -63,7 +63,7 @@ const DepositCard: React.FC<DepositCardProps> = ({
             <Calendar className="w-5 h-5 text-white/70" />
             <span className="text-sm text-white/70">{formattedDate}</span>
           </div>
-          <div className="px-3 py-1 text-sm bg-white rounded-full bg-opacity-10">
+          <div className="px-3 py-1 text-sm bg-white rounded-lg bg-opacity-10">
             {location}
           </div>
         </div>

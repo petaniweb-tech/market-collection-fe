@@ -15,6 +15,8 @@ interface AchievementParams {
   sortOrder?: "asc" | "desc";
   limit?: number;
   page?: number;
+  filter_column?: string[] | null;
+  filter_value?: string[]  | null;
 }
 
 // Get achievement report with filters

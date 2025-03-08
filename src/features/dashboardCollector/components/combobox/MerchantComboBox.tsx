@@ -10,10 +10,11 @@ import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 import { useStores } from "@/features/dashboard/hooks/useStore";
+import { Store } from "@/features/dashboard/types/store.types";
 
 interface MerchantComboBoxProps {
   value: string;
-  onChange: (value: string) => void;
+  onChange: (value: string, data?: Store) => void;
   placeholder?: string;
   isInsideSheet?: boolean;
 }
@@ -31,7 +32,7 @@ const MerchantComboBox = ({
   // Fetch merchants using the hook
   const { data: merchantData, isLoading } = useStores({
     search: searchTerm || undefined,
-    limit: 5,
+    // limit: 5,
     order: "asc",
   });
 
@@ -67,13 +68,13 @@ const MerchantComboBox = ({
     fetchInitialMerchant();
   }, [value, selectedMerchantName, merchants]);
 
-  const handleSelect = (merchantId: string, merchantName: string) => {
-    if (value === merchantId) {
-      onChange("");
+  const handleSelect = (merchant: Store) => {
+    if (value === merchant.id) {
+      onChange("", undefined);
       setSelectedMerchantName("");
     } else {
-      onChange(merchantId);
-      setSelectedMerchantName(merchantName);
+      onChange(merchant.id, merchant);
+      setSelectedMerchantName(merchant.name);
     }
     setSearchTerm("");
     setOpen(false);
@@ -114,7 +115,7 @@ const MerchantComboBox = ({
         <div className="relative mb-2">
           <Search className="absolute left-2 top-2.5 h-4 w-4 text-gray-500" />
           <Input
-            placeholder="Cari pedagang..."
+            placeholder="Cari lapak..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="pl-8"
@@ -136,7 +137,7 @@ const MerchantComboBox = ({
               <div
                 key={merchant.id}
                 className="flex items-center gap-2 px-2 py-1.5 text-sm cursor-pointer hover:bg-gray-100 rounded-sm"
-                onClick={() => handleSelect(merchant.id, merchant.name)}
+                onClick={() => handleSelect(merchant)}
               >
                 <div className="w-4 h-4">
                   {value === merchant.id && <Check className="w-4 h-4" />}
