@@ -182,7 +182,7 @@ export default function CollectorForm({
                         field.onChange(value);
 
                         if (value === "Tutup") {
-                          form.setValue("deposit_amount", "0");
+                          form.setValue("deposit_amount", 0);
                           form.setValue("is_open", false);
                         } else {
                           form.setValue("is_open", true);
