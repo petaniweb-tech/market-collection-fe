@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import React from 'react';
 import {
   ResponsiveContainer,
   AreaChart,
@@ -8,17 +9,11 @@ import {
   CartesianGrid,
   Tooltip,
 } from "recharts";
+import { IncomeAccumulation } from '../../types/incomeAccumulation.types';
 
-// Sample data - replace with your actual data
-const data = [
-  { date: "Senin", income: 4000000 },
-  { date: "Selasa", income: 3000000 },
-  { date: "Rabu", income: 2000000 },
-  { date: "Kamis", income: 2780000 },
-  { date: "Jumat", income: 1890000 },
-  { date: "Sabtu", income: 2390000 },
-  { date: "Minggu", income: 3490000 },
-];
+interface IncomeAreaChartProps {
+  data?: IncomeAccumulation[];
+}
 
 const CustomTooltip = ({ active, payload, label }: any) => {
   if (active && payload && payload.length) {
@@ -37,6 +32,11 @@ const CustomTooltip = ({ active, payload, label }: any) => {
                 maximumFractionDigits: 0,
               }).format(payload[0].value)}
             </span>
+            {payload[0].payload.transaction_count && (
+              <span className="text-xs text-muted-foreground">
+                {payload[0].payload.transaction_count} Transaksi
+              </span>
+            )}
           </div>
         </div>
       </div>
@@ -45,12 +45,30 @@ const CustomTooltip = ({ active, payload, label }: any) => {
   return null;
 };
 
-export default function IncomeAreaChart() {
+const IncomeAreaChart: React.FC<IncomeAreaChartProps> = ({ data = [] }) => {
+  // Transform API data to match the component's expected format
+  const chartData = data.map((item) => ({
+    date: item.period_label,
+    income: item.total_amount,
+    transaction_count: item.transaction_count
+  }));
+
+  // If no data is provided, use sample data
+  const displayData = chartData.length > 0 ? chartData : [
+    { date: "Senin", income: 4000000, transaction_count: 24 },
+    { date: "Selasa", income: 3000000, transaction_count: 18 },
+    { date: "Rabu", income: 2000000, transaction_count: 12 },
+    { date: "Kamis", income: 2780000, transaction_count: 16 },
+    { date: "Jumat", income: 1890000, transaction_count: 11 },
+    { date: "Sabtu", income: 2390000, transaction_count: 14 },
+    { date: "Minggu", income: 3490000, transaction_count: 21 },
+  ];
+
   return (
-    <div className="h-[300px]">
+    <div className="h-[500px]">
       <ResponsiveContainer width="100%" height="100%">
         <AreaChart
-          data={data}
+          data={displayData}
           margin={{
             top: 5,
             right: 10,
@@ -104,4 +122,6 @@ export default function IncomeAreaChart() {
       </ResponsiveContainer>
     </div>
   );
-}
+};
+
+export default IncomeAreaChart;

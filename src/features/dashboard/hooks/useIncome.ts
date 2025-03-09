@@ -8,7 +8,7 @@ export const QUERY_KEYS = {
 
 // Type for achievement parameters
 interface AchievementParams {
-  viewType: "daily" | "weekly" | "monthly";
+  viewType: "daily" | "weekly" | "monthly" | "yearly";
   date: string;
   sortBy?: string;
   search?: string;

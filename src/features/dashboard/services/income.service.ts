@@ -9,7 +9,7 @@ const INCOME_ENDPOINTS = {
 
 // Define the parameter types for the achievement endpoint
 interface AchievementParams {
-  viewType: "daily" | "weekly" | "monthly";
+  viewType: "daily" | "weekly" | "monthly" | "yearly";
   date: string;
   sortBy?: string;
   search?: string;

@@ -107,9 +107,9 @@ const Income = () => {
               <SelectValue placeholder="Urutkan" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="daily">Daily</SelectItem>
-              <SelectItem value="weekly">Weekly</SelectItem>
-              <SelectItem value="monthly">Monthly</SelectItem>
+              <SelectItem value="daily">Harian</SelectItem>
+              <SelectItem value="weekly">Mingguan</SelectItem>
+              <SelectItem value="monthly">Bulanan</SelectItem>
             </SelectContent>
           </Select>
         </div>

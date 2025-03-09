@@ -18,7 +18,11 @@ import { usePermissions } from "@/hooks/usePermission";
 import { Navigate } from "@tanstack/react-router";
 import Unauthorized from "@/components/common/unauthorize/Unauthorize";
 import CheckPercentage from "@/assets/icon/ic_check_percentage.svg";
-import { useDashboard } from "../../hooks/useDashboard";
+import { useDashboard, useIncomeAccumulation } from "../../hooks/useDashboard";
+import { useAchievement } from "../../hooks/useIncome";
+import { format } from "date-fns";
+import TopEarnersSkeleton from "../loading/TopEarnersSkeleton";
+import IncomeChartSkeleton from "../loading/IncomeChartSkeleton";
 
 // Function to detect if the device is mobile or tablet
 // const isMobileDevice = () => {
@@ -42,7 +46,50 @@ const Dashboard = () => {
   const [shouldRotate, setShouldRotate] = useState(false);
   const { isAuthenticated } = useAuth();
   const { isAdmin } = usePermissions();
-  const {data: dailyTarget} = useDashboard();
+  const { data: dailyTarget } = useDashboard();
+  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
+  const [page, setPage] = useState(1);
+  const [limit] = useState(5);
+  const [viewTypeAchievement, setViewTypeAchievement] = useState<
+    "weekly" | "monthly" | "yearly"
+  >("weekly");
+  const [viewTypeChart, setViewTypeChart] = useState<
+    "weekly" | "monthly" | "yearly"
+  >("weekly");
+
+  const [selectedDate, setSelectedDate] = useState<string>(
+    new Date().toISOString().split("T")[0]
+  );
+  const today = new Date();
+  const formattedDate = format(today, "yyyy-MM-dd");
+
+  const { data: incomeData, isLoading } = useAchievement({
+    viewType: viewTypeAchievement,
+    date: selectedDate,
+    sortBy: "total_expected_amount",
+    sortOrder,
+    limit,
+    page,
+  });
+  const { data: incomeAccumulation, isLoading: isLoadingIncomeAccumulation } =
+    useIncomeAccumulation({
+      viewType: viewTypeChart,
+      date: formattedDate,
+    });
+
+  const income = incomeData?.records || [];
+
+  const handleViewTypeAchievementChange = (
+    value: "weekly" | "monthly" | "yearly"
+  ) => {
+    setViewTypeAchievement(value);
+  };
+
+  const handleViewTypeChartChange = (
+    value: "weekly" | "monthly" | "yearly"
+  ) => {
+    setViewTypeChart(value);
+  };
 
   // const { isAuthenticated, user } = useAuth();
   // if (!isAuthenticated) {
@@ -169,20 +216,17 @@ const Dashboard = () => {
               Top Earners
               <span>
                 <div className="mr-8">
-                  <Select defaultValue="minggu">
-                    <SelectTrigger className="bg-transparent border-2 shadow-sm w-28 rounded-xl hover:bg-gray-100">
-                      <SelectValue placeholder="Period" />
+                  <Select
+                    defaultValue="weekly"
+                    onValueChange={handleViewTypeAchievementChange}
+                  >
+                    <SelectTrigger className="bg-white border-0 min-w-32 focus:ring-1 focus:ring-orange-400">
+                      <SelectValue placeholder="Urutkan" />
                     </SelectTrigger>
-                    <SelectContent className="bg-white rounded-lg shadow-md">
-                      <SelectItem value="minggu" className="hover:bg-gray-50">
-                        Minggu
-                      </SelectItem>
-                      <SelectItem value="bulan" className="hover:bg-gray-50">
-                        Bulan
-                      </SelectItem>
-                      <SelectItem value="tahun" className="hover:bg-gray-50">
-                        Tahun
-                      </SelectItem>
+                    <SelectContent>
+                      <SelectItem value="weekly">Mingguan</SelectItem>
+                      <SelectItem value="monthly">Bulanan</SelectItem>
+                      <SelectItem value="yearly">Tahunan</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -213,31 +257,44 @@ const Dashboard = () => {
               </div>
 
               {/* Table Rows */}
-              {[1, 2, 3].map((index) => (
-                <div
-                  key={index}
-                  className="grid items-center grid-cols-10 gap-4 p-4 mb-3 bg-white rounded-2xl"
-                >
-                  <div className="flex items-center justify-center w-10 h-10 font-medium text-white bg-orange-500 rounded-xl">
-                    {String(index).padStart(2, "0")}
-                  </div>
-                  <div className="flex items-center col-span-2 text-sm font-normal text-black bg-[#282828] bg-opacity-5 px-2 h-8 rounded-lg">
-                    Klojen
-                  </div>
-                  <div className="flex items-center col-span-2 text-sm font-normal text-black bg-[#282828] bg-opacity-5 px-2 h-8 rounded-lg">
-                    100 Lapak
-                  </div>
-                  <div className="flex items-center col-span-3 text-sm font-normal text-black bg-[#282828] bg-opacity-5 px-2 h-8 rounded-lg">
-                    Rp. 1.000.000
-                  </div>
-                  <div className="flex items-center col-span-2 text-sm font-normal text-black bg-[#282828] bg-opacity-5 px-2 h-8 rounded-lg">
-                    <div className="flex items-center gap-1 font-semibold text-orange-500">
-                      <img src={CheckPercentage} alt="percentage" />
-                      100%
+              {isLoading ? (
+                <TopEarnersSkeleton count={5} />
+              ) : income.length > 0 ? (
+                income.map((item, index) => (
+                  <div
+                    key={item.id || index}
+                    className="grid items-center grid-cols-10 gap-4 p-4 mb-3 bg-white rounded-2xl"
+                  >
+                    <div className="flex items-center justify-center w-10 h-10 font-medium text-white bg-orange-500 rounded-xl">
+                      {String(index + 1).padStart(2, "0")}
+                    </div>
+                    <div className="flex items-center col-span-2 text-sm font-normal text-black bg-[#282828] bg-opacity-5 px-2 h-8 rounded-lg">
+                      {item.name || "N/A"}
+                    </div>
+                    <div className="flex items-center col-span-2 text-sm font-normal text-black bg-[#282828] bg-opacity-5 px-2 h-8 rounded-lg">
+                      {item.merchant_count || 0} Lapak
+                    </div>
+                    <div className="flex items-center col-span-3 text-sm font-normal text-black bg-[#282828] bg-opacity-5 px-2 h-8 rounded-lg">
+                      {new Intl.NumberFormat("id-ID", {
+                        style: "currency",
+                        currency: "IDR",
+                        minimumFractionDigits: 0,
+                        maximumFractionDigits: 0,
+                      }).format(item.total_expected_amount || 0)}
+                    </div>
+                    <div className="flex items-center col-span-2 text-sm font-normal text-black bg-[#282828] bg-opacity-5 px-2 h-8 rounded-lg">
+                      <div className="flex items-center gap-1 font-semibold text-orange-500">
+                        <img src={CheckPercentage} alt="percentage" />
+                        {Math.round(item.collection_percentage || 0)}%
+                      </div>
                     </div>
                   </div>
+                ))
+              ) : (
+                <div className="p-4 text-center text-gray-500">
+                  Data tidak ditemukan
                 </div>
-              ))}
+              )}
             </div>
           </div>
         </div>
@@ -249,20 +306,27 @@ const Dashboard = () => {
               Akumulasi Pendapatan
             </CardTitle>
             <div className="flex items-center gap-2">
-              <Select defaultValue="minggu">
-                <SelectTrigger className="w-28">
-                  <SelectValue placeholder="Period" />
+              <Select
+                defaultValue="weekly"
+                onValueChange={handleViewTypeChartChange}
+              >
+                <SelectTrigger className="bg-white border-0 min-w-32 focus:ring-1 focus:ring-orange-400">
+                  <SelectValue placeholder="Urutkan" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="minggu">Minggu</SelectItem>
-                  <SelectItem value="bulan">Bulan</SelectItem>
-                  <SelectItem value="tahun">Tahun</SelectItem>
+                  <SelectItem value="weekly">Mingguan</SelectItem>
+                  <SelectItem value="monthly">Bulanan</SelectItem>
+                  <SelectItem value="yearly">Tahunan</SelectItem>
                 </SelectContent>
               </Select>
             </div>
           </CardHeader>
           <CardContent>
-            <IncomeAreaChart />
+            {isLoadingIncomeAccumulation ? (
+              <IncomeChartSkeleton />
+            ) : (
+              <IncomeAreaChart data={incomeAccumulation || []} />
+            )}
           </CardContent>
         </Card>
       </div>
